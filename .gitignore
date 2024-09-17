@@ -1,3 +1,17 @@
+# Ignorer les fichiers de compilation
+*.o
+*.out
+*.exe
+
+# Ignorer les fichiers temporaires de l'IDE
+.idea/
+*.swp
+
+# Ignorer les bibliothèques
+lib/
+
+
+
 CMakeFiles.txt
 
 cmake-build-debug/
