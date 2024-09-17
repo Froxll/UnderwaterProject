@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <iostream>
 
 const int WINDOW_WIDTH = 800;
@@ -26,11 +27,21 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           WINDOW_WIDTH, WINDOW_HEIGHT,
-                                          SDL_WINDOW_SHOWN);
+                                          SDL_WINDOW_FULLSCREEN);
     if (window == nullptr) {
         std::cerr << "Erreur de création de la fenêtre: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return 1;
+    }
+
+    int screenWidth, screenHeight;
+    SDL_GetWindowSize(window, &screenWidth, &screenHeight);
+
+    //initialisation de sdl image
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cerr << "Erreur lors de l'initialisation de SDL_image: " << IMG_GetError() << std::endl;
+        SDL_Quit();
+        return -1;
     }
 
     // Créer un renderer avec SDL_RENDERER_SOFTWARE
@@ -41,6 +52,29 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
+
+    // Charger l'image PNG
+    SDL_Surface* imageSurface = IMG_Load("../img/map.png");
+    if (imageSurface == nullptr) {
+        std::cerr << "Erreur lors du chargement de l'image PNG: " << IMG_GetError() << std::endl;
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
+        return -1;
+    }
+    // Créer une texture à partir de la surface
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, imageSurface);
+    SDL_FreeSurface(imageSurface);  // Libérer la surface maintenant que la texture est créée
+    if (texture == nullptr) {
+        std::cerr << "Erreur lors de la création de la texture: " << SDL_GetError() << std::endl;
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        IMG_Quit();
+        SDL_Quit();
+        return 1;
+    }
+
 
     // Boucle principale
     bool running = true;
@@ -78,7 +112,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Définir la zone de découpage
-        SDL_Rect viewport = { offsetX, offsetY, WINDOW_WIDTH, WINDOW_HEIGHT };
+        SDL_Rect viewport = { offsetX, offsetY, screenWidth, screenHeight };
         if (SDL_RenderSetClipRect(renderer, &viewport) != 0) {
             std::cerr << "Erreur de SDL_RenderSetClipRect: " << SDL_GetError() << std::endl;
         }
@@ -92,7 +126,13 @@ int main(int argc, char* argv[]) {
         }
 
         // Présenter le rendu
+        /*
+        SDL_Rect rect = {100, 100, 200, 100};
+        SDL_RenderFillRect(renderer, &rect);
+         */
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
+
     }
 
     // Détruire le renderer et la fenêtre, et quitter SDL
@@ -101,4 +141,5 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
 
     return 0;
+
 }
