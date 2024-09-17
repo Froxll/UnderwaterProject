@@ -12,6 +12,7 @@ lib/
 
 
 
-CMakeFiles.txt
+CMakeLists.txt
 
 cmake-build-debug/
+
