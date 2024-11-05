@@ -4,6 +4,6 @@
 #include <SDL2/SDL.h>
 #include "boid.hpp"
 
-void drawBoid(SDL_Renderer* renderer, const Boid& boid);
+void drawBoid(SDL_Renderer* renderer, SDL_Texture* texture, const Boid& boid);
 
 #endif // RENDER_H

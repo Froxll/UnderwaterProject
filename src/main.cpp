@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <vector>
 #include "boid.hpp"
@@ -68,9 +69,13 @@ int main(int argc, char* argv[]) {
         // Dessiner le fond avec dégradé bleu
         drawGradientBackground(renderer);
 
+        int w,h = 10;
+        SDL_Texture* img = IMG_LoadTexture(renderer, "../img/fish.png");
+        SDL_QueryTexture(img, NULL, NULL, &w, &h);
+
         // Dessiner chaque poisson
         for (const Boid& boid : boids) {
-            drawBoid(renderer, boid);
+            drawBoid(renderer, img, boid);
         }
 
         // Afficher à l'écran

@@ -1,7 +1,15 @@
 #include "render.hpp"
+#include <iostream>
 
-void drawBoid(SDL_Renderer* renderer, const Boid& boid) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Couleur blanche
-    SDL_Rect rect = { static_cast<int>(boid.x), static_cast<int>(boid.y), 5, 5 }; // Rectangle de 5x5 pixels
-    SDL_RenderFillRect(renderer, &rect);
+using namespace std;
+
+void drawBoid(SDL_Renderer* renderer, SDL_Texture* texture, const Boid& boid) {
+    if (!texture) {
+        cerr << "Texture invalide!" << endl;
+        return;
+    }
+
+    SDL_Rect rect = { static_cast<int>(boid.x), static_cast<int>(boid.y), 20, 20 };
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }
+
