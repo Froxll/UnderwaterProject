@@ -2,6 +2,11 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
+extern "C"
+{
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 const int ENV_WIDTH = 1600;
@@ -45,7 +50,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Créer un renderer avec SDL_RENDERER_SOFTWARE
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr) {
         std::cerr << "Erreur de création du renderer: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window);
