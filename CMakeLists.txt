@@ -16,7 +16,7 @@ find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 # Ajouter le fichier source et définir l'exécutable
-add_executable(ProjetPoisson main.cpp behavior.cpp behavior.hpp boid.cpp boid.hpp render.cpp render.hpp config.hpp config.cpp)
+add_executable(UnderwaterProject src/main.cpp src/behavior.cpp src/behavior.hpp src/boid.cpp src/boid.hpp src/render.cpp src/render.hpp src/config.hpp src/config.cpp)
 
 # Lier SDL2 et SDL_image avec l'exécutable
-target_link_libraries(ProjetPoisson ${SDL2_LIBRARIES} -lSDL2_image)
+target_link_libraries(UnderwaterProject ${SDL2_LIBRARIES} -lSDL2_image)
