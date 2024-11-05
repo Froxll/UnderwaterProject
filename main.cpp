@@ -6,6 +6,8 @@
 #include "render.hpp"
 #include "viewport.hpp"
 
+#include <SDL2/SDL_image.h>
+
 const int WINDOW_WIDTH = 800;  // Taille de la fenêtre
 const int WINDOW_HEIGHT = 600;
 const int VIEWPORT_WIDTH = 1000;  // Taille de la vue
@@ -20,27 +22,19 @@ SDL_Point worldToScreen(float worldX, float worldY, const Viewport& viewport) {
     return screen;
 }
 
-void drawBackground(SDL_Renderer* renderer, const Viewport& viewport) {
-    // Couleur de fond bleu uniforme
-    SDL_SetRenderDrawColor(renderer, 0, 105, 148, 255);
-    SDL_RenderClear(renderer);
+void drawBackground(SDL_Renderer* renderer, const Viewport& viewport, SDL_Texture* mapTexture) {
+    // Définir la portion de la texture à afficher (rectangle source)
+    SDL_Rect srcRect;
+    srcRect.x = static_cast<int>(viewport.x);  // Coordonnée x dans la texture
+    srcRect.y = static_cast<int>(viewport.y);  // Coordonnée y dans la texture
+    srcRect.w = viewport.width;                // Largeur de la portion de la texture
+    srcRect.h = viewport.height;               // Hauteur de la portion de la texture
 
-    // Optionnel : Dessiner une grille ou des repères pour visualiser les limites du monde
-    SDL_SetRenderDrawColor(renderer, 0, 125, 168, 255);
+    // Définir la position sur l'écran (rectangle de destination)
+    SDL_Rect destRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
 
-    // Dessiner les lignes verticales de la grille
-    for (int x = 0; x < GameWorld::WIDTH; x += 200) {
-        SDL_Point start = worldToScreen(x, 0, viewport);
-        SDL_Point end = worldToScreen(x, GameWorld::HEIGHT, viewport);
-        SDL_RenderDrawLine(renderer, start.x, start.y, end.x, end.y);
-    }
-
-    // Dessiner les lignes horizontales de la grille
-    for (int y = 0; y < GameWorld::HEIGHT; y += 200) {
-        SDL_Point start = worldToScreen(0, y, viewport);
-        SDL_Point end = worldToScreen(GameWorld::WIDTH, y, viewport);
-        SDL_RenderDrawLine(renderer, start.x, start.y, end.x, end.y);
-    }
+    // Afficher la texture
+    SDL_RenderCopy(renderer, mapTexture, &srcRect, &destRect);
 }
 
 int main(int argc, char* argv[]) {
@@ -77,6 +71,19 @@ int main(int argc, char* argv[]) {
     const float CAMERA_SPEED = 5.0f;
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
+    // Initialiser SDL_image
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cerr << "Erreur SDL_image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
+// Charger la texture de la map
+    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/map.png");
+    if (!mapTexture) {
+        std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -100,7 +107,8 @@ int main(int argc, char* argv[]) {
         }
 
         // Effacer l'écran et dessiner le fond
-        drawBackground(renderer, viewport);
+        SDL_RenderClear(renderer);
+        drawBackground(renderer, viewport, mapTexture);
 
         // Dessiner les boids visibles
         for (const Boid& boid : boids) {
@@ -117,6 +125,10 @@ int main(int argc, char* argv[]) {
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+
+    SDL_DestroyTexture(mapTexture); // Libérer la texture de la map
+    IMG_Quit(); // Quitter SDL_image
+
     SDL_Quit();
 
     return 0;
