@@ -1,9 +1,6 @@
 #include "behavior.hpp"
 #include <cmath>
-#include <limits>
-
-const int WINDOW_WIDTH = 1000; // Largeur de la fenêtre
-const int WINDOW_HEIGHT = 800; // Hauteur de la fenêtre
+#include <algorithm>
 
 // Constantes pour le comportement des boids
 const float visual_range = 100.0f;
@@ -15,16 +12,23 @@ const float turnfactor = 0.1f;
 const float minspeed = 2.0f;
 const float maxspeed = 6.0f;
 
-void updateBoid(Boid& boid, const std::vector<Boid>& boids) {
+void updateBoid(Boid& boid, const std::vector<Boid>& boids, int worldWidth, int worldHeight) {
     float xpos_avg = 0, ypos_avg = 0, xvel_avg = 0, yvel_avg = 0;
     int neighboring_boids = 0;
     float close_dx = 0, close_dy = 0;
 
     for (const Boid& otherboid : boids) {
-        if (&otherboid == &boid) continue; // Ignorer le boid lui-même
+        if (&otherboid == &boid) continue;
 
         float dx = boid.x - otherboid.x;
         float dy = boid.y - otherboid.y;
+
+        // Gérer les bords du monde de manière toroïdale
+        if (dx > worldWidth/2) dx -= worldWidth;
+        else if (dx < -worldWidth/2) dx += worldWidth;
+        if (dy > worldHeight/2) dy -= worldHeight;
+        else if (dy < -worldHeight/2) dy += worldHeight;
+
         float squared_distance = dx * dx + dy * dy;
 
         if (squared_distance < protected_range * protected_range) {
@@ -54,30 +58,24 @@ void updateBoid(Boid& boid, const std::vector<Boid>& boids) {
     boid.vx += close_dx * avoidfactor;
     boid.vy += close_dy * avoidfactor;
 
-    // Gestion des bordures de l'environnement
-    if (boid.x < 0 || boid.x > WINDOW_WIDTH) boid.vx += turnfactor * (boid.x < 0 ? 1 : -1);
-    if (boid.y < 0 || boid.y > WINDOW_HEIGHT) boid.vy += turnfactor * (boid.y < 0 ? 1 : -1);
-
-    // Application du biais si nécessaire
-    if (boid.biasval > 0) {
-        boid.vx = (1 - boid.biasval) * boid.vx + (boid.biasval * 1);
-    } else if (boid.biasval < 0) {
-        boid.vx = (1 - boid.biasval) * boid.vx + (boid.biasval * -1);
-    }
-
-    // Calculer la vitesse du boid
+    // Limite de vitesse
     float speed = std::sqrt(boid.vx * boid.vx + boid.vy * boid.vy);
-
-    // Limiter la vitesse du boid
-    if (speed < minspeed) {
-        boid.vx = (boid.vx / speed) * minspeed;
-        boid.vy = (boid.vy / speed) * minspeed;
-    } else if (speed > maxspeed) {
+    if (speed > maxspeed) {
         boid.vx = (boid.vx / speed) * maxspeed;
         boid.vy = (boid.vy / speed) * maxspeed;
     }
+    if (speed < minspeed) {
+        boid.vx = (boid.vx / speed) * minspeed;
+        boid.vy = (boid.vy / speed) * minspeed;
+    }
 
-    // Mettre à jour la position du boid
+    // Mise à jour de la position avec gestion des bords
     boid.x += boid.vx;
     boid.y += boid.vy;
+
+    // Gérer les bords du monde de manière toroïdale
+    if (boid.x < 0) boid.x += worldWidth;
+    if (boid.x >= worldWidth) boid.x -= worldWidth;
+    if (boid.y < 0) boid.y += worldHeight;
+    if (boid.y >= worldHeight) boid.y -= worldHeight;
 }
