@@ -17,3 +17,4 @@ struct Boid {
     Boid(float x_, float y_);
 };
 #endif // BOID_H
+

@@ -28,3 +28,4 @@ void drawBoid(SDL_Renderer* renderer, const Boid& boid, const Viewport& viewport
                            points[(i + 1) % 3].x, points[(i + 1) % 3].y);
     }
 }
+

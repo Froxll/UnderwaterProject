@@ -12,3 +12,4 @@
 void drawBoid(SDL_Renderer* renderer, const Boid& boid, const Viewport& viewport);
 
 #endif // RENDER_H
+
