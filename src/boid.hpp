@@ -1,12 +1,20 @@
 #ifndef BOID_H
 #define BOID_H
 
+#pragma once
+#include <cstdlib>
+
+#pragma once
+
 struct Boid {
-    float x, y;   // Position
-    float vx, vy; // Vitesse
-    float biasval; // Valeur de biais pour le scout group
+    float x;
+    float y;
+    float vx;
+    float vy;
+    float biasval;
 
-    Boid(float startX, float startY);
+    // Déclaration du constructeur
+    Boid(float x_, float y_);
 };
-
 #endif // BOID_H
+
