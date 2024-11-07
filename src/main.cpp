@@ -8,6 +8,8 @@
 #include "viewport.hpp"
 
 #include <SDL2/SDL_image.h>
+#include "plante.hpp"
+
 
 const int WINDOW_WIDTH = 800;  // Taille de la fenêtre
 const int WINDOW_HEIGHT = 600;
@@ -123,6 +125,16 @@ int main(int argc, char* argv[]) {
             drawBoid(renderer, img, boid);
         }
 
+            drawBoid(renderer, boid);
+        }
+
+        Plante maPlante(renderer, "../img/plantadelamama.png", 100, 200);
+        maPlante.draw(renderer);
+        maPlante.updateLevel(1);
+
+
+
+        // Afficher à l'écran
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
