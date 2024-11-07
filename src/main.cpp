@@ -4,6 +4,8 @@
 #include "boid.hpp"
 #include "behavior.hpp"
 #include "render.hpp"
+#include "plante.hpp"
+
 
 const int WINDOW_WIDTH = 1000;
 const int WINDOW_HEIGHT = 800;
@@ -72,6 +74,12 @@ int main(int argc, char* argv[]) {
         for (const Boid& boid : boids) {
             drawBoid(renderer, boid);
         }
+
+        Plante maPlante(renderer, "../img/plantadelamama.png", 100, 200);
+        maPlante.draw(renderer);
+        maPlante.updateLevel(1);
+
+
 
         // Afficher à l'écran
         SDL_RenderPresent(renderer);

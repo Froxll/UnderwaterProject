@@ -15,4 +15,10 @@ lib/
 CMakeLists.txt
 
 cmake-build-debug/
+cmake-build-debug-mingw/
 
+#For VSCode IDE Users
+
+.vscode/
+build-win.bat
+build/
