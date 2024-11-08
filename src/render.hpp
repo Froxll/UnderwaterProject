@@ -1,11 +1,10 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "boid.hpp"
 
 #pragma once
-#include <SDL2/SDL.h>
 #include "boid.hpp"
 #include "viewport.hpp"
 
