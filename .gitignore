@@ -11,7 +11,7 @@
 lib/
 
 
-
+.vscode/
 CMakeLists.txt
 
 cmake-build-debug/
