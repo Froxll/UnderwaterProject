@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Plantes maPlante(renderer, "img/plante1.png", 100, 200);
+    Plantes maPlante(renderer, 0, 1079);
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -86,8 +86,9 @@ int main(int argc, char* argv[]) {
         }
 
         // Afficher et mettre à jour la plante
-        maPlante.draw(renderer);
-        maPlante.updateLevel(1);
+        maPlante.updateLevel(renderer,2);
+        maPlante.draw(renderer, viewport);
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

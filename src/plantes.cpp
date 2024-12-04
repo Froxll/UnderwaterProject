@@ -21,13 +21,21 @@ void Plantes::updateTexture(SDL_Renderer* renderer) {
 
 
 // Méthode pour dessiner la plante
-void Plantes::draw(SDL_Renderer* renderer) {
-    SDL_Rect dstRect = { posX, posY, largeur, hauteur };
-    SDL_RenderCopy(renderer, texture, NULL, &dstRect);
+void Plantes::draw(SDL_Renderer* renderer, const Viewport& viewport) {
+
+
+    SDL_Point screenPos = worldToScreen(this->posX, this->posY, viewport);
+    SDL_Rect dstRect = { screenPos.x, screenPos.y, largeur, hauteur };
+    if (texture) {
+        SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
+    } else {
+        SDL_Log("Texture non chargée pour les plantes !");
+    }
+
 }
 
 // Méthode pour mettre à jour le niveau en fonction des ressources disponibles
-void Plantes::updateLevel(int level) {
+void Plantes::updateLevel(SDL_Renderer* renderer,int level) {
     switch(level){
         case 1:
             currentLevel = std::make_unique<PlantesLevel1>();
@@ -42,6 +50,15 @@ void Plantes::updateLevel(int level) {
             SDL_Log("This level is not valid : %d", level);
             return;    
     }
+
+    if (texture) {
+        SDL_DestroyTexture(texture);
+    }
+    texture = currentLevel->loadTexture(renderer);
+    if (!texture) {
+        SDL_Log("Erreur lors du chargement de la texture pour le niveau %d", level);
+    }
+
 }
 
 

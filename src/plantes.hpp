@@ -1,125 +1,124 @@
-#ifndef PLANTES_H
-#define PLANTES_H
+    #ifndef PLANTES_H
+    #define PLANTES_H
 
-#include <vector>
-#include "boid.hpp"
-#include <SDL.h>
-#include <SDL_image.h>
-#include <iostream>
-#include <string>
-#include <memory>
+    #include <vector>
+    #include "boid.hpp"
+    #include <SDL.h>
+    #include <SDL_image.h>
+    #include <iostream>
+    #include <string>
+    #include <memory>
+    #include "viewport.hpp"
 
 
-class Plantes {
-private:
-    SDL_Texture* texture;
-    int posX, posY;
-    int largeur, hauteur;
+    class Plantes {
+    private:
+        SDL_Texture* texture;
+        int posX, posY;
+        int largeur, hauteur;
 
-    class PlanteLevel {
-    public:
-        virtual SDL_Texture* loadTexture(SDL_Renderer* renderer) = 0;
-        virtual int getLargeur() const = 0;
-        virtual int getHauteur() const = 0;
-        virtual ~PlanteLevel() = default;
-    };
+        class PlanteLevel {
+        public:
+            virtual SDL_Texture* loadTexture(SDL_Renderer* renderer) = 0;
+            virtual int getLargeur() const = 0;
+            virtual int getHauteur() const = 0;
+            virtual ~PlanteLevel() = default;
+        };
 
-    class PlantesLevel1 : public PlanteLevel {
-    public:
+        class PlantesLevel1 : public PlanteLevel {
+        public:
+            SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
+                SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel2.png");
+                if (!surface) {
+                    SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
+                    return nullptr;
+                }
+                
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);  
 
-        SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel1.png");
-            if (!surface) {
-                SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
-                return nullptr;
+                if (!texture) {
+                    SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
+                }
+
+                return texture;
             }
-            
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);  
+            int getLargeur() const override { return 200; }
+            int getHauteur() const override { return 200; }
+        };
 
-            if (!texture) {
-                SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
+        class PlantesLevel2 : public PlanteLevel {
+        public:
+            SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
+                SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel2.png");
+                if (!surface) {
+                    SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
+                    return nullptr;
+                }
+                
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);  
+
+                if (!texture) {
+                    SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
+                }
+
+                return texture;
             }
+            int getLargeur() const override { return 70; }
+            int getHauteur() const override { return 70; }
+        };
+
+        class PlantesLevel3 : public PlanteLevel {
+        public:
+            SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
+                SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel1.png");
+                if (!surface) {
+                    SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
+                    return nullptr;
+                }
+                
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);  
+
+                if (!texture) {
+                    SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
+                }
 
             return texture;
-        }
-        int getLargeur() const override { return 200; }
-        int getHauteur() const override { return 200; }
-    };
+            }
+            int getLargeur() const override { return 90; }
+            int getHauteur() const override { return 90; }
+        };
+        std::unique_ptr<PlanteLevel> currentLevel;
 
-    class PlantesLevel2 : public PlanteLevel {
+
     public:
-        SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel1.png");
-            if (!surface) {
-                SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
-                return nullptr;
-            }
-            
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);  
 
-            if (!texture) {
-                SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
-            }
 
-            return texture;
+        Plantes(SDL_Renderer* renderer, int x, int y)
+                : posX(x), posY(y), currentLevel(std::make_unique<PlantesLevel1>()) 
+        {
+            this->updateTexture(renderer);
         }
-        int getLargeur() const override { return 70; }
-        int getHauteur() const override { return 70; }
+
+        ~Plantes() {
+            if (texture) {
+                SDL_DestroyTexture(texture);
+            }
+        }
+
+        void draw(SDL_Renderer* renderer, const Viewport& viewport);
+
+        void updateLevel(SDL_Renderer* renderer,int level);
+
+        int getLevel();
+
+        void setPosition(int x, int y);
+
+        void updateTexture(SDL_Renderer* renderer);
+
+
     };
 
-    class PlantesLevel3 : public PlanteLevel {
-    public:
-        SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel1.png");
-            if (!surface) {
-                SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
-                return nullptr;
-            }
-            
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);  
-
-            if (!texture) {
-                SDL_Log("Erreur de création de la texture : %s", SDL_GetError());
-            }
-
-        return texture;
-        }
-        int getLargeur() const override { return 90; }
-        int getHauteur() const override { return 90; }
-    };
-    std::unique_ptr<PlanteLevel> currentLevel;
-
-
-public:
-
-
-    Plantes(SDL_Renderer* renderer, int x, int y)
-            : posX(x), posY(y), currentLevel(std::make_unique<PlantesLevel1>()) 
-    {
-        this->updateTexture(renderer);
-    }
-
-    ~Plantes() {
-        if (texture) {
-            SDL_DestroyTexture(texture);
-        }
-    }
-
-    void draw(SDL_Renderer* renderer);
-
-    void updateLevel(int level);
-
-    int getLevel();
-
-    void setPosition(int x, int y);
-
-    void updateTexture(SDL_Renderer* renderer);
-
-
-
-};
-
-#endif // PLANTES_H
+    #endif // PLANTES_H
