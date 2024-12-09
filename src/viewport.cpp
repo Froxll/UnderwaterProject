@@ -9,16 +9,9 @@ SDL_Point worldToScreen(float worldX, float worldY, const Viewport& viewport) {
 }
 
 void drawBackground(SDL_Renderer* renderer, const Viewport& viewport, SDL_Texture* mapTexture) {
-    // Définir la portion de la texture à afficher (rectangle source)
-    SDL_Rect srcRect;
-    srcRect.x = static_cast<int>(viewport.x);  // Coordonnée x dans la texture
-    srcRect.y = static_cast<int>(viewport.y);  // Coordonnée y dans la texture
-    srcRect.w = viewport.width;                // Largeur de la portion de la texture
-    srcRect.h = viewport.height;               // Hauteur de la portion de la texture
+    SDL_Rect srcRect = {static_cast<int>(viewport.x), static_cast<int>(viewport.y), 
+                        static_cast<int>(viewport.width), static_cast<int>(viewport.height)};
+    SDL_Rect dstRect = {0, 0, viewport.width, viewport.height};
 
-    // Définir la position sur l'écran (rectangle de destination)
-    SDL_Rect destRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
-
-    // Afficher la texture
-    SDL_RenderCopy(renderer, mapTexture, &srcRect, &destRect);
+    SDL_RenderCopy(renderer, mapTexture, &srcRect, &dstRect);
 }

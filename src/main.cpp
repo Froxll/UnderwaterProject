@@ -26,6 +26,9 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+
+    SDL_RenderSetLogicalSize(renderer, 800, 600);
+    
     Viewport viewport = {
             .x = (GameWorld::WIDTH - VIEWPORT_WIDTH) / 2.0f,
             .y = (GameWorld::HEIGHT - VIEWPORT_HEIGHT) / 2.0f,
@@ -48,7 +51,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/map.png");
+    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/mapv2.png");
     if (!mapTexture) {
         std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
         return 1;
@@ -89,10 +92,16 @@ int main(int argc, char* argv[]) {
         maPlante.updateLevel(renderer,2);
         maPlante.draw(renderer, viewport);
 
+        int mapWidth, mapHeight;
+        SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
+        std::cout << "Map size: " << mapWidth << "x" << mapHeight << std::endl;
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
+
+
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
