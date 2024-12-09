@@ -2,7 +2,7 @@
 #define PROJETPOISSON_VIEWPORT_HPP
 
 #pragma once
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 const int WINDOW_WIDTH = 800;  // Taille de la fenêtre
 const int WINDOW_HEIGHT = 600;

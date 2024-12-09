@@ -2,7 +2,7 @@
 #define PLANTES_H
 #include <vector>
 #include "boid.hpp"
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <SDL_image.h>
 #include <iostream>
 #include <string>
