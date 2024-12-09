@@ -1,5 +1,5 @@
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
 #include "boid.hpp"
@@ -61,6 +61,12 @@ int main(int argc, char* argv[]) {
 
     Plantes maPlante(renderer, 0, 1079);
 
+    SDL_Texture* fishTextures[4];
+    fishTextures[0] = IMG_LoadTexture(renderer, "img/Poissons/fish1Texture.png");
+    fishTextures[1] = IMG_LoadTexture(renderer, "img/Poissons/fish2Texture.png");
+    fishTextures[2] = IMG_LoadTexture(renderer, "img/Poissons/fish3Texture.png");
+    fishTextures[3] = IMG_LoadTexture(renderer, "img/Poissons/fish4Texture.png");
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -86,11 +92,10 @@ int main(int argc, char* argv[]) {
         for (const Boid& boid : boids) {
             if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
                 boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
-                drawBoid(renderer, boid, viewport);
+                drawBoid(renderer, boid, viewport, fishTextures);
             }
         }
 
-        // Afficher et mettre à jour la plante
         maPlante.updateLevel(renderer,2);
         maPlante.draw(renderer, viewport);
 
@@ -98,12 +103,13 @@ int main(int argc, char* argv[]) {
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
         std::cout << "Map size: " << mapWidth << "x" << mapHeight << std::endl;
 
-
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
 
-
+    for (auto texture : fishTextures) {
+        SDL_DestroyTexture(texture);
+    }
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
