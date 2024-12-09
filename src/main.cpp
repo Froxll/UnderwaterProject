@@ -9,8 +9,10 @@
 #include "plantes.hpp"
 #include <SDL_image.h>
 
-const int VIEWPORT_WIDTH = 1000;
-const int VIEWPORT_HEIGHT = 1000;
+const int MAP_WIDTH = 1920;  // Largeur de la carte
+const int MAP_HEIGHT = 1090; // Hauteur de la carte
+const int VIEWPORT_WIDTH = 800;  // Largeur de la fenêtre (viewport)
+const int VIEWPORT_HEIGHT = 600; // Hauteur de la fenêtre (viewport)
 const int NUM_BOIDS = 100;
 
 int main(int argc, char* argv[]) {
@@ -30,15 +32,15 @@ int main(int argc, char* argv[]) {
     SDL_RenderSetLogicalSize(renderer, 800, 600);
     
     Viewport viewport = {
-            .x = (GameWorld::WIDTH - VIEWPORT_WIDTH) / 2.0f,
-            .y = (GameWorld::HEIGHT - VIEWPORT_HEIGHT) / 2.0f,
+            .x = 0,
+            .y = 0,
             .width = WINDOW_WIDTH,
             .height = WINDOW_HEIGHT
     };
 
     std::vector<Boid> boids;
     for (int i = 0; i < NUM_BOIDS; i++) {
-        boids.emplace_back(rand() % GameWorld::WIDTH, rand() % GameWorld::HEIGHT);
+        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT);
     }
 
     bool running = true;
@@ -51,7 +53,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/mapv2.png");
+    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/map.png");
     if (!mapTexture) {
         std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
         return 1;
@@ -71,11 +73,11 @@ int main(int argc, char* argv[]) {
         if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
         if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
 
-        viewport.x = std::max(0.0f, std::min(viewport.x, float(GameWorld::WIDTH - VIEWPORT_WIDTH)));
-        viewport.y = std::max(0.0f, std::min(viewport.y, float(GameWorld::HEIGHT - VIEWPORT_HEIGHT)));
+        viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
+        viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
 
         for (Boid& boid : boids) {
-            updateBoid(boid, boids, GameWorld::WIDTH, GameWorld::HEIGHT);
+            updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT);
         }
 
         SDL_RenderClear(renderer);

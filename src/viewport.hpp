@@ -14,10 +14,7 @@ struct Viewport {
     int height;   // Hauteur du viewport (pixels à l'écran)
 };
 
-struct GameWorld {
-    static const int WIDTH = 2000;
-    static const int HEIGHT = 2000;
-};
+
 
 extern const int VIEWPORT_WIDTH;  // Déclaré comme externe
 extern const int VIEWPORT_HEIGHT; // Déclaré comme externe
