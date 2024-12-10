@@ -10,10 +10,15 @@
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
-const int MAP_HEIGHT = 1090; // Hauteur de la carte
+const int MAP_HEIGHT = 1080; // Hauteur de la carte
 const int VIEWPORT_WIDTH = 800;  // Largeur de la fenêtre (viewport)
 const int VIEWPORT_HEIGHT = 600; // Hauteur de la fenêtre (viewport)
 const int NUM_BOIDS = 100;
+
+//Plantes
+const int MAX_PLANTES = 5;
+
+
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -29,7 +34,7 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 
-    SDL_RenderSetLogicalSize(renderer, 800, 600);
+    SDL_RenderSetLogicalSize(renderer, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
     
     Viewport viewport = {
             .x = 0,
@@ -42,6 +47,8 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < NUM_BOIDS; i++) {
         boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT);
     }
+
+
 
     bool running = true;
     SDL_Event event;
@@ -59,7 +66,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Plantes maPlante(renderer, 0, 1079);
+    Plantes maPlante(renderer, 100, 750);
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -96,8 +103,6 @@ int main(int argc, char* argv[]) {
 
         int mapWidth, mapHeight;
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
-        std::cout << "Map size: " << mapWidth << "x" << mapHeight << std::endl;
-
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
