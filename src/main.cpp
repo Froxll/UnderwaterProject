@@ -1,3 +1,4 @@
+
 #include <SDL.h>
 #include <iostream>
 #include <vector>
@@ -59,7 +60,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<Boid> boids;
     for (int i = 0; i < NUM_BOIDS; i++) {
-        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT, rand()%4);
+        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT, rand() % 4);
     }
 
 
@@ -81,14 +82,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    
     SDL_Texture* fishTextures[4];
     fishTextures[0] = IMG_LoadTexture(renderer, "../img/Poissons/fish1Texture.png");
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
-
-
     Plantes maPlante(renderer, 100, 750);
 
     while (running) {

@@ -23,7 +23,7 @@ private:
     class PlantesLevel1 : public PlanteLevel {
     public:
         SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel2.png");
+            SDL_Surface* surface = IMG_Load("../img/Plantes/PlanteLevel2.png");
             if (!surface) {
                 SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
                 return nullptr;
@@ -42,7 +42,7 @@ private:
     class PlantesLevel2 : public PlanteLevel {
     public:
         SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel2.png");
+            SDL_Surface* surface = IMG_Load("../img/Plantes/PlanteLevel2.png");
             if (!surface) {
                 SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
                 return nullptr;
@@ -61,7 +61,7 @@ private:
     class PlantesLevel3 : public PlanteLevel {
     public:
         SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("img/Plantes/PlanteLevel1.png");
+            SDL_Surface* surface = IMG_Load("../img/Plantes/PlanteLevel1.png");
             if (!surface) {
                 SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
                 return nullptr;
