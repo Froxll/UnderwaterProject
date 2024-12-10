@@ -7,7 +7,7 @@
 #pragma once
 #include "viewport.hpp"
 
-void drawBoid(SDL_Renderer* renderer, const Boid& boid, const Viewport& viewport);
+void drawBoid(SDL_Renderer* renderer, const Boid& boid, const Viewport& viewport, SDL_Texture** fishTextures);
 
 #endif // RENDER_H
 

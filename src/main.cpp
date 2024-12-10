@@ -1,4 +1,4 @@
-#define SDL_MAIN_HANDLED
+
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "viewport.hpp"
 #include "welcomeScreen.hpp"
 #include "plantes.hpp"
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
 const int MAP_HEIGHT = 1080; // Hauteur de la carte
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<Boid> boids;
     for (int i = 0; i < NUM_BOIDS; i++) {
-        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT);
+        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT, rand() % 4);
     }
 
 
@@ -82,13 +82,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Plantes maPlante(renderer, 0, 1079);
-
     SDL_Texture* fishTextures[4];
-    fishTextures[0] = IMG_LoadTexture(renderer, "img/Poissons/fish1Texture.png");
-    fishTextures[1] = IMG_LoadTexture(renderer, "img/Poissons/fish2Texture.png");
-    fishTextures[2] = IMG_LoadTexture(renderer, "img/Poissons/fish3Texture.png");
-    fishTextures[3] = IMG_LoadTexture(renderer, "img/Poissons/fish4Texture.png");
+    fishTextures[0] = IMG_LoadTexture(renderer, "../img/Poissons/fish1Texture.png");
+    fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
+    fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
+    fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
     Plantes maPlante(renderer, 100, 750);
 
     while (running) {
