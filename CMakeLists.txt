@@ -3,27 +3,32 @@ project(UnderwaterProject)
 
 set(CMAKE_CXX_STANDARD 23)
 
-# Ajouter le chemin des bibliothèques SDL2
+
+# Ajouter le chemin de la bibliothèque SDL2
 set(CMAKE_PREFIX_PATH "C:/sdl2")
 
-# Trouver SDL2
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-# Trouver SDL_image
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
-# Trouver SDL2_ttf
-find_library(SDL2_TTF_LIBRARY SDL2_ttf PATHS C:/sdl2/lib REQUIRED)
-find_path(SDL2_TTF_INCLUDE_DIR SDL_ttf.h PATHS C:/sdl2/include/SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS})
 
-include_directories(${SDL2_TTF_INCLUDE_DIR})
 
 file(GLOB_RECURSE sourceCode src/*.cpp src/*.h)
 
-
-# Ajouter le fichier source et définir l'exécutable
 add_executable(UnderwaterProject ${sourceCode})
 
-# Lier SDL2, SDL_image, et SDL2_ttf avec l'exécutable
-target_link_libraries(UnderwaterProject ${SDL2_LIBRARIES} -lSDL2_image ${SDL2_TTF_LIBRARY})
+# Lier SDL2 et SDL2_image
+target_link_libraries(UnderwaterProject ${SDL2_LIBRARIES} -lSDL2_image -lSDL2_ttf)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+
+if (WIN32)
+    if (MINGW)
+        set_target_properties(UnderwaterProject PROPERTIES LINK_FLAGS "-Wl,-subsystem,console")
+    else()
+        set_target_properties(UnderwaterProject PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+    endif()
+    target_link_libraries(UnderwaterProject ws2_32)
+endif()
