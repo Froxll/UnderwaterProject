@@ -11,34 +11,15 @@
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
-const int MAP_HEIGHT = 1090; // Hauteur de la carte
+const int MAP_HEIGHT = 1080; // Hauteur de la carte
 const int VIEWPORT_WIDTH = 800;  // Largeur de la fenêtre (viewport)
 const int VIEWPORT_HEIGHT = 600; // Hauteur de la fenêtre (viewport)
 const int NUM_BOIDS = 100;
 
+//Plantes
+const int MAX_PLANTES = 5;
 
-// Fonction pour convertir les coordonnées monde en coordonnées écran
-SDL_Point worldToScreen(float worldX, float worldY, const Viewport& viewport) {
-    SDL_Point screen;
-    screen.x = static_cast<int>((worldX - viewport.x) * viewport.width / VIEWPORT_WIDTH);
-    screen.y = static_cast<int>((worldY - viewport.y) * viewport.height / VIEWPORT_HEIGHT);
-    return screen;
-}
 
-void drawBackground(SDL_Renderer* renderer, const Viewport& viewport, SDL_Texture* mapTexture) {
-    // Définir la portion de la texture à afficher (rectangle source)
-    SDL_Rect srcRect;
-    srcRect.x = static_cast<int>(viewport.x);  // Coordonnée x dans la texture
-    srcRect.y = static_cast<int>(viewport.y);  // Coordonnée y dans la texture
-    srcRect.w = viewport.width;                // Largeur de la portion de la texture
-    srcRect.h = viewport.height;               // Hauteur de la portion de la texture
-
-    // Définir la position sur l'écran (rectangle de destination)
-    SDL_Rect destRect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
-
-    // Afficher la texture
-    SDL_RenderCopy(renderer, mapTexture, &srcRect, &destRect);
-}
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -68,6 +49,7 @@ int main(int argc, char* argv[]) {
 
     // Initialiser le viewport au centre du monde
     SDL_RenderSetLogicalSize(renderer, 800, 600);
+    SDL_RenderSetLogicalSize(renderer, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
     
     Viewport viewport = {
             .x = 0,
@@ -80,6 +62,8 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < NUM_BOIDS; i++) {
         boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT);
     }
+
+
 
     bool running = true;
     SDL_Event event;
@@ -105,6 +89,7 @@ int main(int argc, char* argv[]) {
     fishTextures[1] = IMG_LoadTexture(renderer, "img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "img/Poissons/fish4Texture.png");
+    Plantes maPlante(renderer, 100, 750);
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -140,7 +125,6 @@ int main(int argc, char* argv[]) {
 
         int mapWidth, mapHeight;
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
-        std::cout << "Map size: " << mapWidth << "x" << mapHeight << std::endl;
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

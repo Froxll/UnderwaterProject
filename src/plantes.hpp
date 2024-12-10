@@ -37,7 +37,7 @@ private:
             return texture;
         }
         int getLargeur() const override { return 200; }
-        int getHauteur() const override { return 200; }
+        int getHauteur() const override { return 250; }
     };
     class PlantesLevel2 : public PlanteLevel {
     public:
@@ -55,8 +55,8 @@ private:
             }
             return texture;
         }
-        int getLargeur() const override { return 70; }
-        int getHauteur() const override { return 70; }
+        int getLargeur() const override { return 300; }
+        int getHauteur() const override { return 400; }
     };
     class PlantesLevel3 : public PlanteLevel {
     public:
@@ -78,6 +78,7 @@ private:
         int getHauteur() const override { return 90; }
     };
     std::unique_ptr<PlanteLevel> currentLevel;
+    std::unique_ptr<PlanteLevel> previousLevel;
 public:
     Plantes(SDL_Renderer* renderer, int x, int y)
             : posX(x), posY(y), currentLevel(std::make_unique<PlantesLevel1>()) 
