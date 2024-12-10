@@ -63,7 +63,9 @@ int main(int argc, char* argv[]) {
         boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT, rand() % 4);
     }
 
-
+    
+    Uint32 lastSpawnTime = SDL_GetTicks();
+    int spawnInterval = 2000;             
 
     bool running = true;
     SDL_Event event;
@@ -81,6 +83,13 @@ int main(int argc, char* argv[]) {
         std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
         return 1;
     }
+
+    //Stocker les plantes
+
+    std::vector<std::unique_ptr<Plantes>> plantes;
+
+
+
 
     SDL_Texture* fishTextures[4];
     fishTextures[0] = IMG_LoadTexture(renderer, "../img/Poissons/fish1Texture.png");
@@ -117,9 +126,30 @@ int main(int argc, char* argv[]) {
                 drawBoid(renderer, boid, viewport, fishTextures);
             }
         }
+        
 
-        maPlante.updateLevel(renderer,2);
-        maPlante.draw(renderer, viewport);
+        //Apparition des plantes 
+
+
+        Uint32 currentTime = SDL_GetTicks();
+
+        if (currentTime > lastSpawnTime + spawnInterval) {
+
+            int x = rand() % 800; 
+            int y = 750;
+            plantes.push_back(std::make_unique<Plantes>(renderer, x, y));
+            
+            lastSpawnTime = currentTime;
+
+
+            spawnInterval = 15000 + rand() % 10000;
+        }
+
+
+        for (const auto& plante : plantes) {
+            plante->draw(renderer, viewport); 
+            plante->checkEvolution(renderer);
+        }
 
         int mapWidth, mapHeight;
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);

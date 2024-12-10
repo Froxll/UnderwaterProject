@@ -97,3 +97,17 @@ void Plantes::setPosition(int x, int y){
     this->posX = x;
     this->posY = y;
 }
+
+void Plantes::checkEvolution(SDL_Renderer* renderer) {
+    Uint32 currentTime = SDL_GetTicks(); 
+    Uint32 elapsed = currentTime - creationTime; 
+
+    std::cout << elapsed << std::endl;
+    if (elapsed >= 15000) { 
+        int currentLevelValue = this->getLevel();
+        if (currentLevelValue < 3) { 
+            this->updateLevel(renderer, currentLevelValue + 1);
+            creationTime = SDL_GetTicks();
+        }
+    }
+}

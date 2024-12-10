@@ -13,6 +13,7 @@ private:
     SDL_Texture* texture = nullptr;
     int posX, posY;
     int largeur, hauteur;
+    Uint32 creationTime;
     class PlanteLevel {
     public:
         virtual SDL_Texture* loadTexture(SDL_Renderer* renderer) = 0;
@@ -23,7 +24,7 @@ private:
     class PlantesLevel1 : public PlanteLevel {
     public:
         SDL_Texture* loadTexture(SDL_Renderer* renderer) override {
-            SDL_Surface* surface = IMG_Load("../img/Plantes/PlanteLevel2.png");
+            SDL_Surface* surface = IMG_Load("../img/Plantes/PlanteLevel1.png");
             if (!surface) {
                 SDL_Log("Erreur de chargement de l'image : %s", IMG_GetError());
                 return nullptr;
@@ -55,8 +56,8 @@ private:
             }
             return texture;
         }
-        int getLargeur() const override { return 300; }
-        int getHauteur() const override { return 400; }
+        int getLargeur() const override { return 200; }
+        int getHauteur() const override { return 300; }
     };
     class PlantesLevel3 : public PlanteLevel {
     public:
@@ -83,6 +84,7 @@ public:
     Plantes(SDL_Renderer* renderer, int x, int y)
             : posX(x), posY(y), currentLevel(std::make_unique<PlantesLevel1>()) 
     {
+        creationTime = SDL_GetTicks();
         this->updateTexture(renderer);
     }
     ~Plantes() {
@@ -95,5 +97,6 @@ public:
     int getLevel();
     void setPosition(int x, int y);
     void updateTexture(SDL_Renderer* renderer);
+    void checkEvolution(SDL_Renderer* renderer);
 };
 #endif // PLANTES_H
