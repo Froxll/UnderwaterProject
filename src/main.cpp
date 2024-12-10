@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
@@ -6,13 +7,13 @@
 #include "render.hpp"
 #include "viewport.hpp"
 #include "welcomeScreen.hpp"
+#include "plantes.hpp"
+#include <SDL_image.h>
 
-#include <SDL2/SDL_image.h>
-
-const int WINDOW_WIDTH = 800;  // Taille de la fenêtre
-const int WINDOW_HEIGHT = 600;
-const int VIEWPORT_WIDTH = 1000;  // Taille de la vue
-const int VIEWPORT_HEIGHT = 1000;
+const int MAP_WIDTH = 1920;  // Largeur de la carte
+const int MAP_HEIGHT = 1090; // Hauteur de la carte
+const int VIEWPORT_WIDTH = 800;  // Largeur de la fenêtre (viewport)
+const int VIEWPORT_HEIGHT = 600; // Hauteur de la fenêtre (viewport)
 const int NUM_BOIDS = 100;
 
 
@@ -66,38 +67,44 @@ int main(int argc, char* argv[]) {
     std:cerr << playerName << std::endl;
 
     // Initialiser le viewport au centre du monde
+    SDL_RenderSetLogicalSize(renderer, 800, 600);
+    
     Viewport viewport = {
-            .x = (GameWorld::WIDTH - VIEWPORT_WIDTH) / 2.0f,
-            .y = (GameWorld::HEIGHT - VIEWPORT_HEIGHT) / 2.0f,
+            .x = 0,
+            .y = 0,
             .width = WINDOW_WIDTH,
             .height = WINDOW_HEIGHT
     };
 
-    // Créer les boids dans le monde complet
     std::vector<Boid> boids;
     for (int i = 0; i < NUM_BOIDS; i++) {
-        boids.emplace_back(rand() % GameWorld::WIDTH, rand() % GameWorld::HEIGHT);
+        boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT);
     }
 
     bool running = true;
     SDL_Event event;
-
-    // Variables pour le déplacement de la caméra
     const float CAMERA_SPEED = 5.0f;
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
-    // Initialiser SDL_image
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
         std::cerr << "Erreur SDL_image: " << IMG_GetError() << std::endl;
         return 1;
     }
 
-// Charger la texture de la map
+    // Charger la texture de la map
     SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "../img/map.png");
     if (!mapTexture) {
         std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
         return 1;
     }
+
+    Plantes maPlante(renderer, 0, 1079);
+
+    SDL_Texture* fishTextures[4];
+    fishTextures[0] = IMG_LoadTexture(renderer, "img/Poissons/fish1Texture.png");
+    fishTextures[1] = IMG_LoadTexture(renderer, "img/Poissons/fish2Texture.png");
+    fishTextures[2] = IMG_LoadTexture(renderer, "img/Poissons/fish3Texture.png");
+    fishTextures[3] = IMG_LoadTexture(renderer, "img/Poissons/fish4Texture.png");
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -106,44 +113,47 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // Déplacer la caméra avec les touches fléchées
         if (keyState[SDL_SCANCODE_LEFT]) viewport.x -= CAMERA_SPEED;
         if (keyState[SDL_SCANCODE_RIGHT]) viewport.x += CAMERA_SPEED;
         if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
         if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
 
-        // Limiter la position du viewport aux limites du monde
-        viewport.x = std::max(0.0f, std::min(viewport.x, float(GameWorld::WIDTH - VIEWPORT_WIDTH)));
-        viewport.y = std::max(0.0f, std::min(viewport.y, float(GameWorld::HEIGHT - VIEWPORT_HEIGHT)));
+        viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
+        viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
 
-        // Mettre à jour les boids
         for (Boid& boid : boids) {
-            updateBoid(boid, boids, GameWorld::WIDTH, GameWorld::HEIGHT);
+            updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT);
         }
 
-        // Effacer l'écran et dessiner le fond
         SDL_RenderClear(renderer);
         drawBackground(renderer, viewport, mapTexture);
 
-        // Dessiner les boids visibles
         for (const Boid& boid : boids) {
-            // Vérifier si le boid est dans le viewport
             if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
                 boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
-                drawBoid(renderer, boid, viewport);
+                drawBoid(renderer, boid, viewport, fishTextures);
             }
         }
+
+        maPlante.updateLevel(renderer,2);
+        maPlante.draw(renderer, viewport);
+
+        int mapWidth, mapHeight;
+        SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
+        std::cout << "Map size: " << mapWidth << "x" << mapHeight << std::endl;
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
 
+    for (auto texture : fishTextures) {
+        SDL_DestroyTexture(texture);
+    }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-
-    SDL_DestroyTexture(mapTexture); // Libérer la texture de la map
-    IMG_Quit(); // Quitter SDL_image
-
+    SDL_DestroyTexture(mapTexture);
+    IMG_Quit();
     SDL_Quit();
 
     return 0;
