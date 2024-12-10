@@ -5,6 +5,7 @@
 #include "behavior.hpp"
 #include "render.hpp"
 #include "viewport.hpp"
+#include "welcomeScreen.hpp"
 
 #include <SDL2/SDL_image.h>
 
@@ -13,6 +14,7 @@ const int WINDOW_HEIGHT = 600;
 const int VIEWPORT_WIDTH = 1000;  // Taille de la vue
 const int VIEWPORT_HEIGHT = 1000;
 const int NUM_BOIDS = 100;
+
 
 // Fonction pour convertir les coordonnées monde en coordonnées écran
 SDL_Point worldToScreen(float worldX, float worldY, const Viewport& viewport) {
@@ -50,6 +52,19 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+
+    string playerName = "";
+
+    // Appeler l'écran d'accueil
+    if (!showWelcomeScreen(renderer, window, &playerName)) {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
+    }
+
+    std:cerr << playerName << std::endl;
+
     // Initialiser le viewport au centre du monde
     Viewport viewport = {
             .x = (GameWorld::WIDTH - VIEWPORT_WIDTH) / 2.0f,
@@ -78,7 +93,7 @@ int main(int argc, char* argv[]) {
     }
 
 // Charger la texture de la map
-    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "img/map.png");
+    SDL_Texture* mapTexture = IMG_LoadTexture(renderer, "../img/map.png");
     if (!mapTexture) {
         std::cerr << "Erreur de chargement de l'image: " << IMG_GetError() << std::endl;
         return 1;

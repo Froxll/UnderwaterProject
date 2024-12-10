@@ -15,4 +15,5 @@ lib/
 CMakeLists.txt
 
 cmake-build-debug/
+cmake-build-mingw/
 
