@@ -1,5 +1,5 @@
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include <vector>
 #include "boid.hpp"
@@ -8,7 +8,7 @@
 #include "viewport.hpp"
 #include "welcomeScreen.hpp"
 #include "plantes.hpp"
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
 const int MAP_HEIGHT = 1080; // Hauteur de la carte
