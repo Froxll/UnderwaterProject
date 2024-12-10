@@ -6,8 +6,9 @@
 
 
 void Plantes::updateTexture(SDL_Renderer* renderer) {
-    if (this->texture) {
+    if (this->texture == nullptr) {
         SDL_DestroyTexture(this->texture);  
+        this->texture = nullptr;
     }
     this->texture = currentLevel->loadTexture(renderer);
     if (!this->texture) {

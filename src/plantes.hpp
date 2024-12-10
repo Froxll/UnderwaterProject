@@ -10,7 +10,7 @@
 #include "viewport.hpp"
 class Plantes {
 private:
-    SDL_Texture* texture;
+    SDL_Texture* texture = nullptr;
     int posX, posY;
     int largeur, hauteur;
     class PlanteLevel {
