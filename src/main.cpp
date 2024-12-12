@@ -8,6 +8,7 @@
 #include "viewport.hpp"
 #include "welcomeScreen.hpp"
 #include "plantes.hpp"
+#include "diver.hpp"
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]) {
                                           SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+    Diver diver(renderer);
 
     string playerName = "";
 
@@ -123,6 +125,9 @@ int main(int argc, char* argv[]) {
 
         int mapWidth, mapHeight;
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
+
+        diver.updateAngle(keyState);
+        diver.draw(renderer, viewport);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
