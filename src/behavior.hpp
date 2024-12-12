@@ -7,7 +7,6 @@
 #pragma once
 #include <vector>
 #include "boid.hpp"
-
-void updateBoid(Boid& boid, const std::vector<Boid>& boids, int worldWidth, int worldHeight);
+void updateBoid(Boid& boid, const std::vector<Boid>& boids, int worldWidth, int worldHeight, float timeFactor);
 
 #endif // BEHAVIOR_H

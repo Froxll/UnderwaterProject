@@ -34,7 +34,6 @@ void Plantes::draw(SDL_Renderer* renderer, const Viewport& viewport) {
 
     // Dessiner le contour de la plante (rectangle)
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); 
-    SDL_RenderDrawRect(renderer, &dstRect);
 }
 
 // Méthode pour mettre à jour le niveau en fonction des ressources disponibles
@@ -102,7 +101,6 @@ void Plantes::checkEvolution(SDL_Renderer* renderer) {
     Uint32 currentTime = SDL_GetTicks(); 
     Uint32 elapsed = currentTime - creationTime; 
 
-    std::cout << elapsed << std::endl;
     if (elapsed >= 15000) { 
         int currentLevelValue = this->getLevel();
         if (currentLevelValue < 3) { 

@@ -14,7 +14,7 @@ const int MAP_WIDTH = 1920;  // Largeur de la carte
 const int MAP_HEIGHT = 1080; // Hauteur de la carte
 const int VIEWPORT_WIDTH = 800;  // Largeur de la fenêtre (viewport)
 const int VIEWPORT_HEIGHT = 600; // Hauteur de la fenêtre (viewport)
-const int NUM_BOIDS = 100;
+const int NUM_BOIDS = 20;
 
 //Plantes
 const int MAX_PLANTES = 5;
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
     Plantes maPlante(renderer, 100, 750);
-
+    Uint32 startTime = SDL_GetTicks();
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -113,10 +113,12 @@ int main(int argc, char* argv[]) {
         viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
         viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
 
-        for (Boid& boid : boids) {
-            updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT);
-        }
+        Uint32 elapsedTime = SDL_GetTicks() - startTime;
+        float timeFactor = 0.3f + elapsedTime / 50000.0f;
 
+        for (Boid& boid : boids) {
+            updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT, timeFactor);
+}
         SDL_RenderClear(renderer);
         drawBackground(renderer, viewport, mapTexture);
 
@@ -135,7 +137,7 @@ int main(int argc, char* argv[]) {
 
         if (currentTime > lastSpawnTime + spawnInterval) {
 
-            int x = rand() % 800; 
+            int x = rand() % 1920; 
             int y = 750;
             plantes.push_back(std::make_unique<Plantes>(renderer, x, y));
             
