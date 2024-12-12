@@ -5,7 +5,7 @@
 #include "behavior.hpp"
 #include "render.hpp"
 #include "viewport.hpp"
-#include "welcomeScreen.hpp"
+#include "screensManager.hpp"
 #include "plantes.hpp"
 #include "diver.hpp"
 #include "collision.hpp"
@@ -122,21 +122,113 @@ int main(int argc, char* argv[]) {
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
+    Plantes maPlante(renderer, 100, 750);
+
+    bool isPaused = false;
+    bool isGameLaunched = true;
+    bool isWaitingScreenShowed = false;
+
+    SDL_Texture* pauseButtonTexture = IMG_LoadTexture(renderer, "../img/assets/Pause.png");
+    if (!pauseButtonTexture) {
+        std::cerr << "Erreur : Impossible de charger la texture du bouton !" << std::endl;
+        return 1;
+    }
+
+    SDL_Rect pauseButton = {680, 20, 100, 50};
+
 
 
     Uint32 startTime = SDL_GetTicks();
 
     while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-            }
-        }
 
-        if (keyState[SDL_SCANCODE_LEFT]) viewport.x -= CAMERA_SPEED;
-        if (keyState[SDL_SCANCODE_RIGHT]) viewport.x += CAMERA_SPEED;
-        if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
-        if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
+        if (isPaused) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_Rect overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+            SDL_RenderFillRect(renderer, &overlay);
+
+            // Bouton start/resume
+            SDL_Texture* resumeTexture = createTexture(renderer, window, "../img/assets/Start.png");
+            SDL_Rect resumeButton = {WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2 - 150,  BUTTON_RESUME_WIDTH, BUTTON_RESUME_HEIGHT};
+            SDL_RenderCopy(renderer, resumeTexture, nullptr, &resumeButton);
+
+            // Bouton stop
+            SDL_Texture* quitTexture = createTexture(renderer, window, "../img/assets/Stop.png");
+            SDL_Rect quitButton = {WINDOW_WIDTH / 2 - 95, WINDOW_HEIGHT / 2 - 50,  BUTTON_STOP_WIDTH, BUTTON_STOP_HEIGHT};
+            SDL_RenderCopy(renderer, quitTexture, nullptr, &quitButton);
+
+            // Bouton new game
+            SDL_Texture* newGameTexture = createTexture(renderer, window, "../img/assets/New_Game.png");
+            SDL_Rect newGameButton = {WINDOW_WIDTH / 2 - 160, WINDOW_HEIGHT / 2 + 45,  BUTTON_NEWGAME_WIDTH, BUTTON_NEWGAME_HEIGHT};
+            SDL_RenderCopy(renderer, newGameTexture, nullptr, &newGameButton);
+
+            SDL_RenderPresent(renderer);
+
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    int x = event.button.x;
+                    int y = event.button.y;
+
+                    // Click sur le bouton Start/Resume
+                    if (x >= resumeButton.x && x <= resumeButton.x + resumeButton.w &&
+                        y >= resumeButton.y && y <= resumeButton.y + resumeButton.h) {
+                        isPaused = false;
+                    }
+
+                    // Click sur le bouton Stop
+                    if (x >= quitButton.x && x <= quitButton.x + quitButton.w &&
+                        y >= quitButton.y && y <= quitButton.y + quitButton.h) {
+                        running = false;
+                    }
+
+                    // Click sur le bouton New Game
+                    if (x >= newGameButton.x && x <= newGameButton.x + newGameButton.w &&
+                        y >= newGameButton.y && y <= newGameButton.y + newGameButton.h) {
+                        running = false;
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_DestroyTexture(mapTexture);
+                        IMG_Quit();
+                        SDL_Quit();
+                        main(0, nullptr);
+                        return 0;
+                    }
+                } else if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        isPaused = false;
+                    }
+                }
+            }
+        } else {
+
+            SDL_RenderCopy(renderer, pauseButtonTexture, nullptr, &pauseButton);
+            SDL_RenderPresent(renderer);
+
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    int x = event.button.x;
+                    int y = event.button.y;
+
+                    if (x >= pauseButton.x && x <= pauseButton.x + BUTTON_PAUSE_WIDTH && y >= pauseButton.y && y <= pauseButton.y + BUTTON_PAUSE_HEIGHT) {
+                        isPaused = true;
+                    }
+                } else if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        isPaused = true;
+                    }
+                }
+
+            }
+
+            if (keyState[SDL_SCANCODE_LEFT]) viewport.x -= CAMERA_SPEED;
+            if (keyState[SDL_SCANCODE_RIGHT]) viewport.x += CAMERA_SPEED;
+            if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
+            if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
 
         viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
         viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
@@ -262,8 +354,8 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        SDL_RenderPresent(renderer);
-        SDL_Delay(16);
+            SDL_Delay(16);
+        }
     }
 
     for (auto texture : fishTextures) {
