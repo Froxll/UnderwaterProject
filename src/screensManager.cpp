@@ -2,7 +2,7 @@
 // Created by ethan on 04/12/2024.
 //
 
-#include "welcomeScreen.hpp"
+#include "screensManager.hpp"
 
 SDL_Texture* createTexture(SDL_Renderer* renderer, SDL_Window* window, const char* filePath) {
     SDL_Surface* surface = IMG_Load(filePath);
@@ -80,7 +80,7 @@ bool showWelcomeScreen(SDL_Renderer* renderer, SDL_Window* window, string* playe
 
     SDL_Color textColor = {255, 255, 255, 255}; // Blanc
 
-    SDL_Rect startButton = {270, 400, BUTTON_WIDTH, BUTTON_HEIGHT};
+    SDL_Rect startButton = {270, 400, BUTTON_START_WIDTH, BUTTON_START_HEIGHT};
     SDL_Rect title = {300, 40, 210, 181};
     SDL_Rect backgroundRect = {0, 0, 800, 600};
     SDL_Rect inputBox = {200, 300, 400, 50};
@@ -95,8 +95,8 @@ bool showWelcomeScreen(SDL_Renderer* renderer, SDL_Window* window, string* playe
                 int x = event.button.x;
                 int y = event.button.y;
 
-                if (x >= startButton.x && x <= startButton.x + BUTTON_WIDTH &&
-                    y >= startButton.y && y <= startButton.y + BUTTON_HEIGHT) {
+                if (x >= startButton.x && x <= startButton.x + BUTTON_START_WIDTH &&
+                    y >= startButton.y && y <= startButton.y + BUTTON_START_HEIGHT) {
                     startGame = true;
                     running = false;
                 }
