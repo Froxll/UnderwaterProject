@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include "viewport.hpp"
+
 class Plantes {
 private:
     SDL_Texture* texture;
