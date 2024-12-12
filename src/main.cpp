@@ -8,6 +8,7 @@
 #include "welcomeScreen.hpp"
 #include "plantes.hpp"
 #include "diver.hpp"
+#include "coins.hpp"
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
@@ -18,6 +19,13 @@ const int NUM_BOIDS = 20;
 
 //Plantes
 const int MAX_PLANTES = 5;
+
+//Coins 
+
+const int FRAME_WIDTH = 16;  
+const int FRAME_HEIGHT = 17; 
+const int NUM_FRAMES = 5; 
+const int MAX_COINS = 10;   
 
 
 
@@ -90,6 +98,14 @@ int main(int argc, char* argv[]) {
     std::vector<std::unique_ptr<Plantes>> plantes;
 
 
+    //Stocker les coins 
+
+    std::vector<std::unique_ptr<Coins>> coins;
+
+    int currentNbCoins = 0;
+
+    Uint32 lastCoinSpawnTime = SDL_GetTicks();
+    const Uint32 coinSpawnInterval = 3000; 
 
 
     SDL_Texture* fishTextures[4];
@@ -97,7 +113,8 @@ int main(int argc, char* argv[]) {
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
-    Plantes maPlante(renderer, 100, 750);
+
+
     Uint32 startTime = SDL_GetTicks();
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -119,7 +136,7 @@ int main(int argc, char* argv[]) {
 
         for (Boid& boid : boids) {
             updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT, timeFactor);
-}
+        }
         SDL_RenderClear(renderer);
         drawBackground(renderer, viewport, mapTexture);
 
@@ -132,7 +149,6 @@ int main(int argc, char* argv[]) {
         
 
         //Apparition des plantes 
-
 
         Uint32 currentTime = SDL_GetTicks();
 
@@ -154,6 +170,36 @@ int main(int argc, char* argv[]) {
             plante->checkEvolution(renderer);
         }
 
+        //Gestion coins
+
+        int currentFrame = 0;
+        Uint32 frameTime = 100;  
+        Uint32 lastFrameTime = 0;
+
+
+        if (currentTime > lastCoinSpawnTime + coinSpawnInterval && currentNbCoins <= MAX_COINS) {
+            std::cout << "i" << std::endl;
+            int x = rand() % MAP_WIDTH;  
+            int y = rand() % MAP_HEIGHT; 
+            coins.push_back(std::make_unique<Coins>(renderer, x, y));
+            lastCoinSpawnTime = currentTime;
+            currentNbCoins += 1;
+        }
+        
+        for (const auto& coin : coins) {
+            if (coin->getX() >= viewport.x && coin->getX() < viewport.x + VIEWPORT_WIDTH &&
+                coin->getY() >= viewport.y && coin->getY() < viewport.y + VIEWPORT_HEIGHT) {
+                int currentFrame = (currentTime / 100) % NUM_FRAMES; 
+                coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
+            }
+        }
+
+
+
+
+
+
+        //Gestion diver
         int mapWidth, mapHeight;
         SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
 

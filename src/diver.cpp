@@ -36,6 +36,7 @@ void Diver::draw(SDL_Renderer* renderer, const Viewport& viewport) {
 
 
     SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, flip);
+    SDL_RenderDrawRect(renderer, &dstRect);
 }
 
 void Diver::updateAngle(const Uint8* keyState) {
