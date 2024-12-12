@@ -5,10 +5,10 @@
 #ifndef WELCOMESCREEN_H
 #define WELCOMESCREEN_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 const int BUTTON_WIDTH = 256;
 const int BUTTON_HEIGHT = 73;
