@@ -86,6 +86,14 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    SDL_Texture* heartFullTexture = IMG_LoadTexture(renderer, "../img/assets/Heart_Full.png");
+    SDL_Texture* heartEmptyTexture = IMG_LoadTexture(renderer, "../img/assets/Heart_Empty.png");
+    if (!heartFullTexture || !heartEmptyTexture) {
+        std::cerr << "Erreur de chargement des textures des cœurs : " << IMG_GetError() << std::endl;
+        return 1;
+    }
+    int lives=3;
+
     //Stocker les plantes
 
     std::vector<std::unique_ptr<Plantes>> plantes;
@@ -148,6 +156,9 @@ int main(int argc, char* argv[]) {
                 if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
                     collisionTime = currentTime;  // Réinitialiser le timer de collision
                     std::cout << "Collision!" << std::endl;
+                    if (lives > 0) {
+                        lives--;  // Réduire le nombre de vies
+                    }
                 }
             }
         }
@@ -181,6 +192,27 @@ int main(int argc, char* argv[]) {
         diver.updateAngle(keyState);
         diver.draw(renderer, viewport);
 
+        int heartWidth = 50;  // Largeur d'un cœur (ajustez selon votre image)
+        int heartHeight = 50; // Hauteur d'un cœur
+        int heartSpacing = 10; // Espacement entre les cœurs
+        int startX = 10; // Position de départ en X (en haut à gauche)
+        int startY = 10; // Position de départ en Y (en haut à gauche)
+
+        for (int i = 0; i < 3; i++) {
+            SDL_Rect heartRect = {
+                    startX + i * (heartWidth + heartSpacing), // Position X avec espacement
+                    startY,                                  // Position Y fixe
+                    heartWidth,                              // Largeur du cœur
+                    heartHeight                              // Hauteur du cœur
+            };
+
+            if (i < lives) {
+                SDL_RenderCopy(renderer, heartFullTexture, nullptr, &heartRect); // Cœur plein
+            } else {
+                SDL_RenderCopy(renderer, heartEmptyTexture, nullptr, &heartRect); // Cœur vide
+            }
+        }
+
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
@@ -192,6 +224,8 @@ int main(int argc, char* argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_DestroyTexture(mapTexture);
+    SDL_DestroyTexture(heartFullTexture);
+    SDL_DestroyTexture(heartEmptyTexture);
     IMG_Quit();
     SDL_Quit();
 
