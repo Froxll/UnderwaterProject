@@ -14,4 +14,5 @@ void drawBoid(SDL_Renderer* renderer, const Boid& boid, const Viewport& viewport
     };
 
     SDL_RenderCopyEx(renderer, fishTextures[boid.fishTextureIndex], nullptr, &dstRect, angle, nullptr, SDL_FLIP_NONE);
+    SDL_RenderDrawRect(renderer, &dstRect);
 }

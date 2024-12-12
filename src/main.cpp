@@ -8,6 +8,7 @@
 #include "welcomeScreen.hpp"
 #include "plantes.hpp"
 #include "diver.hpp"
+#include "collision.hpp"
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
         boids.emplace_back(rand() % MAP_WIDTH, rand() % MAP_HEIGHT, rand() % 4);
     }
 
-    
+    Uint32 collisionTime = 0;
     Uint32 lastSpawnTime = SDL_GetTicks();
     int spawnInterval = 2000;             
 
@@ -89,9 +90,6 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::unique_ptr<Plantes>> plantes;
 
-
-
-
     SDL_Texture* fishTextures[4];
     fishTextures[0] = IMG_LoadTexture(renderer, "../img/Poissons/fish1Texture.png");
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
@@ -99,6 +97,7 @@ int main(int argc, char* argv[]) {
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
     Plantes maPlante(renderer, 100, 750);
     Uint32 startTime = SDL_GetTicks();
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -123,13 +122,35 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         drawBackground(renderer, viewport, mapTexture);
 
+        SDL_Rect diverRect = {
+                static_cast<int>(diver.getPosX() - 50),  // You'll need to add getPosX() method to Diver class
+                static_cast<int>(diver.getPosY() - 50),  // You'll need to add getPosY() method to Diver class
+                100,  // width
+                100   // height
+        };
+
         for (const Boid& boid : boids) {
             if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
                 boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
+
+                // Convert boid position to screen coordinates
+                SDL_Rect boidRect = {
+                        static_cast<int>(boid.x - viewport.x - 25),  // Adjust for boid size and viewport
+                        static_cast<int>(boid.y - viewport.y - 25),
+                        50,  // Assuming boid size is 50x50
+                        50
+                };
+
                 drawBoid(renderer, boid, viewport, fishTextures);
+                SDL_RenderDrawRect(renderer, &boidRect);  // Draw boid hitbox
+
+                Uint32 currentTime = SDL_GetTicks();  // Temps actuel
+                if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
+                    collisionTime = currentTime;  // Réinitialiser le timer de collision
+                    std::cout << "Collision!" << std::endl;
+                }
             }
         }
-        
 
         //Apparition des plantes 
 

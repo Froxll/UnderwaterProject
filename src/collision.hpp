@@ -1,0 +1,8 @@
+#ifndef UNDERWATERPROJECT_COLLISION_HPP
+#define UNDERWATERPROJECT_COLLISION_HPP
+
+#include <SDL2/SDL.h>
+
+bool checkCollision(SDL_Rect rect1, SDL_Rect rect2);
+
+#endif //UNDERWATERPROJECT_COLLISION_HPP

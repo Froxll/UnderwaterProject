@@ -16,6 +16,8 @@ public:
     void draw(SDL_Renderer* renderer, const Viewport& viewport);
     void updateAngle(const Uint8* keyState);
     float getAngle() const { return angle; }
+    int getPosX() const { return posX; }
+    int getPosY() const { return posY; }
 };
 
 #endif //UNDERWATERPROJECT_DIVER_HPP

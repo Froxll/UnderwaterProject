@@ -34,8 +34,8 @@ void Diver::draw(SDL_Renderer* renderer, const Viewport& viewport) {
         flip = SDL_FLIP_VERTICAL;
     }
 
-
     SDL_RenderCopyEx(renderer, texture, nullptr, &dstRect, angle, nullptr, flip);
+    SDL_RenderDrawRect(renderer, &dstRect);
 }
 
 void Diver::updateAngle(const Uint8* keyState) {
@@ -66,3 +66,4 @@ void Diver::updateAngle(const Uint8* keyState) {
         angle = 45;   // Bas-Droite
     }
 }
+
