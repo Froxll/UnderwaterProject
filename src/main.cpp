@@ -151,8 +151,8 @@ int main(int argc, char* argv[]) {
         drawBackground(renderer, viewport, mapTexture);
 
         SDL_Rect diverRect = {
-                static_cast<int>(diver.getPosX() - 50),  // You'll need to add getPosX() method to Diver class
-                static_cast<int>(diver.getPosY() - 50),  // You'll need to add getPosY() method to Diver class
+                static_cast<int>(diver.getPosX() - 50),  
+                static_cast<int>(diver.getPosY() - 50),  
                 100,  // width
                 100   // height
         };
@@ -161,11 +161,11 @@ int main(int argc, char* argv[]) {
             if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
                 boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
 
-                // Convert boid position to screen coordinates
+
                 SDL_Rect boidRect = {
-                        static_cast<int>(boid.x - viewport.x - 25),  // Adjust for boid size and viewport
+                        static_cast<int>(boid.x - viewport.x - 25),  
                         static_cast<int>(boid.y - viewport.y - 25),
-                        50,  // Assuming boid size is 50x50
+                        50, 
                         50
                 };
 
@@ -227,6 +227,8 @@ int main(int argc, char* argv[]) {
                 int currentFrame = (currentTime / 100) % NUM_FRAMES; 
                 coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
             }
+
+            
         }
 
 
