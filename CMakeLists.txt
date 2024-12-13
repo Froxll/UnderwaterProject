@@ -9,6 +9,7 @@ set(CMAKE_PREFIX_PATH "C:/sdl2")
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
 include_directories(C:/sdl2/include)
@@ -19,7 +20,7 @@ file(GLOB_RECURSE sourceCode src/*.cpp src/*.h)
 add_executable(UnderwaterProject ${sourceCode})
 
 # Lier SDL2 et SDL2_image
-target_link_libraries(UnderwaterProject ${SDL2_LIBRARIES} -lSDL2_image -lSDL2_ttf)
+target_link_libraries(UnderwaterProject ${SDL2_LIBRARIES} -lSDL2_image -lSDL2_ttf -lSDL2_mixer)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
