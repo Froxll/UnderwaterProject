@@ -136,6 +136,9 @@ int main(int argc, char* argv[]) {
 
     SDL_Rect pauseButton = {680, 20, 100, 50};
 
+    SDL_Texture* resumeTexture = createTexture(renderer, window, "../img/assets/Start.png");
+    SDL_Texture* quitTexture = createTexture(renderer, window, "../img/assets/Stop.png");
+    SDL_Texture* newGameTexture = createTexture(renderer, window, "../img/assets/New_Game.png");
 
 
     Uint32 startTime = SDL_GetTicks();
@@ -149,17 +152,14 @@ int main(int argc, char* argv[]) {
             SDL_RenderFillRect(renderer, &overlay);
 
             // Bouton start/resume
-            SDL_Texture* resumeTexture = createTexture(renderer, window, "../img/assets/Start.png");
             SDL_Rect resumeButton = {WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2 - 150,  BUTTON_RESUME_WIDTH, BUTTON_RESUME_HEIGHT};
             SDL_RenderCopy(renderer, resumeTexture, nullptr, &resumeButton);
 
             // Bouton stop
-            SDL_Texture* quitTexture = createTexture(renderer, window, "../img/assets/Stop.png");
             SDL_Rect quitButton = {WINDOW_WIDTH / 2 - 95, WINDOW_HEIGHT / 2 - 50,  BUTTON_STOP_WIDTH, BUTTON_STOP_HEIGHT};
             SDL_RenderCopy(renderer, quitTexture, nullptr, &quitButton);
 
             // Bouton new game
-            SDL_Texture* newGameTexture = createTexture(renderer, window, "../img/assets/New_Game.png");
             SDL_Rect newGameButton = {WINDOW_WIDTH / 2 - 160, WINDOW_HEIGHT / 2 + 45,  BUTTON_NEWGAME_WIDTH, BUTTON_NEWGAME_HEIGHT};
             SDL_RenderCopy(renderer, newGameTexture, nullptr, &newGameButton);
 
