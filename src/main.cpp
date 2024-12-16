@@ -10,6 +10,7 @@
 #include "diver.hpp"
 #include "collision.hpp"
 #include "coins.hpp"
+#include <SDL_mixer.h>
 #include <SDL_image.h>
 
 const int MAP_WIDTH = 1920;  // Largeur de la carte
@@ -101,6 +102,26 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     int lives=3;
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        std::cerr << "Erreur SDL: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "Erreur SDL_mixer: " << Mix_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
+    }
+
+    Mix_Chunk* one_lives_sound = Mix_LoadWAV("../songs/1lives_sound.wav");
+    Mix_Chunk* two_lives_sound = Mix_LoadWAV("../songs/2lives_sound.wav");
+    Mix_Chunk* gameOverSound = Mix_LoadWAV("../songs/death_sound.wav");
+
+    if (!one_lives_sound || !two_lives_sound || !gameOverSound) {
+        std::cerr << "Erreur de chargement des sons : " << Mix_GetError() << std::endl;
+        return 1;
+    }
 
     //Stocker les plantes
 
@@ -243,8 +264,8 @@ int main(int argc, char* argv[]) {
         drawBackground(renderer, viewport, mapTexture);
 
         SDL_Rect diverRect = {
-                static_cast<int>(diver.getPosX() - 50),  // You'll need to add getPosX() method to Diver class
-                static_cast<int>(diver.getPosY() - 50),  // You'll need to add getPosY() method to Diver class
+                static_cast<int>(diver.getPosX() - 50),  
+                static_cast<int>(diver.getPosY() - 50),  
                 100,  // width
                 100   // height
         };
@@ -253,11 +274,11 @@ int main(int argc, char* argv[]) {
             if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
                 boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
 
-                // Convert boid position to screen coordinates
+
                 SDL_Rect boidRect = {
-                        static_cast<int>(boid.x - viewport.x - 25),  // Adjust for boid size and viewport
+                        static_cast<int>(boid.x - viewport.x - 25),  
                         static_cast<int>(boid.y - viewport.y - 25),
-                        50,  // Assuming boid size is 50x50
+                        50, 
                         50
                 };
 
@@ -268,8 +289,18 @@ int main(int argc, char* argv[]) {
                 if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
                     collisionTime = currentTime;  // Réinitialiser le timer de collision
                     std::cout << "Collision!" << std::endl;
+
                     if (lives > 0) {
                         lives--;  // Réduire le nombre de vies
+
+                        // Jouer le son approprié selon la vie restante
+                        if (lives == 2) {
+                            Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
+                        } else if (lives == 1) {
+                            Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
+                        } else if (lives == 0) {
+                            Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
+                        }
                     }
                 }
             }
@@ -319,6 +350,8 @@ int main(int argc, char* argv[]) {
                 int currentFrame = (currentTime / 100) % NUM_FRAMES; 
                 coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
             }
+
+            
         }
 
 
@@ -367,6 +400,10 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(mapTexture);
     SDL_DestroyTexture(heartFullTexture);
     SDL_DestroyTexture(heartEmptyTexture);
+    Mix_FreeChunk(one_lives_sound);
+    Mix_FreeChunk(two_lives_sound);
+    Mix_FreeChunk(gameOverSound);
+    Mix_CloseAudio();
     IMG_Quit();
     SDL_Quit();
 
