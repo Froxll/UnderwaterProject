@@ -344,16 +344,30 @@ int main(int argc, char* argv[]) {
             currentNbCoins += 1;
         }
         
-        for (const auto& coin : coins) {
+        for (auto it = coins.begin(); it != coins.end();) {
+            auto& coin = *it;
+
             if (coin->getX() >= viewport.x && coin->getX() < viewport.x + VIEWPORT_WIDTH &&
                 coin->getY() >= viewport.y && coin->getY() < viewport.y + VIEWPORT_HEIGHT) {
                 int currentFrame = (currentTime / 100) % NUM_FRAMES; 
                 coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
             }
 
-            
-        }
+            SDL_Rect coinRect = {
+                static_cast<int>(coin->getX() - viewport.x - 25),  
+                static_cast<int>(coin->getY() - viewport.y - 25),
+                50, 
+                50
+            };
 
+            if (checkCollision(diverRect, coinRect)) {
+                diver.incrementCoins(1); 
+                it = coins.erase(it);    
+                SDL_Log("Pièce collectée ! Total : %d", diver.getCoins());
+            } else {
+                ++it; 
+            }
+        }
 
 
 

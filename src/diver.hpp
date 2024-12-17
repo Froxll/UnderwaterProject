@@ -9,6 +9,8 @@ private:
     float angle;
     SDL_Texture* texture;
     int posX, posY;
+    int numberOfCoins = 0;
+    int lives = 3;
 
 public:
     Diver(SDL_Renderer* renderer);
@@ -18,6 +20,9 @@ public:
     float getAngle() const { return angle; }
     int getPosX() const { return posX; }
     int getPosY() const { return posY; }
+    int getCoins() { return this->numberOfCoins; }
+    int getLives() { return this->lives; }
+    void incrementCoins(int number){ this->numberOfCoins+=number;}
 };
 
 #endif //UNDERWATERPROJECT_DIVER_HPP
