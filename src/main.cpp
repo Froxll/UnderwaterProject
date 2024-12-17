@@ -10,6 +10,7 @@
 #include "diver.hpp"
 #include "collision.hpp"
 #include "coins.hpp"
+#include "lives.hpp"
 #include <SDL_mixer.h>
 #include <SDL_image.h>
 
@@ -29,6 +30,8 @@ const int FRAME_HEIGHT = 17;
 const int NUM_FRAMES = 5; 
 const int MAX_COINS = 10;   
 
+
+const int MAX_LIVES = 10;   
 
 
 int main(int argc, char* argv[]) {
@@ -101,7 +104,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Erreur de chargement des textures des cœurs : " << IMG_GetError() << std::endl;
         return 1;
     }
-    int lives=3;
+    int lives=diver.getLives();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         std::cerr << "Erreur SDL: " << SDL_GetError() << std::endl;
@@ -136,6 +139,17 @@ int main(int argc, char* argv[]) {
 
     Uint32 lastCoinSpawnTime = SDL_GetTicks();
     const Uint32 coinSpawnInterval = 3000; 
+
+    //Stocker les vies 
+
+    std::vector<std::unique_ptr<Lives>> livesV;
+
+    int currentNbLives = 0;
+
+    Uint32 lastLiveSpawnTime = SDL_GetTicks();
+    const Uint32 liveSpawnInterval = 3000; 
+
+
 
 
     SDL_Texture* fishTextures[4];
@@ -336,7 +350,6 @@ int main(int argc, char* argv[]) {
 
 
         if (currentTime > lastCoinSpawnTime + coinSpawnInterval && currentNbCoins <= MAX_COINS) {
-            std::cout << "i" << std::endl;
             int x = rand() % MAP_WIDTH;  
             int y = rand() % MAP_HEIGHT; 
             coins.push_back(std::make_unique<Coins>(renderer, x, y));
@@ -368,6 +381,44 @@ int main(int argc, char* argv[]) {
                 ++it; 
             }
         }
+
+        //Gestion lives
+
+        if (currentTime > lastLiveSpawnTime + liveSpawnInterval && currentNbLives <= MAX_LIVES) {
+            int x = rand() % MAP_WIDTH;  
+            int y = rand() % MAP_HEIGHT; 
+            livesV.push_back(std::make_unique<Lives>(renderer, x, y));
+            lastLiveSpawnTime = currentTime;
+            currentNbLives += 1;
+        }
+        
+        if(lives < 3){
+            for (auto it = livesV.begin(); it != livesV.end();) {
+                auto& live = *it;
+
+                if (live->getX() >= viewport.x && live->getX() < viewport.x + VIEWPORT_WIDTH &&
+                    live->getY() >= viewport.y && live->getY() < viewport.y + VIEWPORT_HEIGHT) {
+                    live->draw(renderer, viewport);
+                }
+
+                SDL_Rect liveRect = {
+                    static_cast<int>(live->getX() - viewport.x - 25),  
+                    static_cast<int>(live->getY() - viewport.y - 25),
+                    50, 
+                    50
+                };
+
+                if (checkCollision(diverRect, liveRect)) {
+                    diver.incrementLives(1); 
+                    it = livesV.erase(it);    
+                    SDL_Log("Vie collectée ! Total : %d", diver.getLives());
+                } else {
+                    ++it; 
+                }
+            }
+        }
+
+
 
 
 
