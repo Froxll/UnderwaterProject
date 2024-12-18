@@ -25,6 +25,9 @@ const int BUTTON_STOP_HEIGHT = 91;
 const int BUTTON_NEWGAME_WIDTH = 350;
 const int BUTTON_NEWGAME_HEIGHT = 99;
 
+const int GAME_OVER_RECT_WIDTH = 524;
+const int GAME_OVER_RECT_HEIGHT = 149;
+
 using namespace std;
 
 SDL_Texture* createTexture(SDL_Renderer* renderer, SDL_Window* window, const char* filePath);

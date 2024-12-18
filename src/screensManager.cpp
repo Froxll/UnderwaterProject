@@ -157,4 +157,3 @@ bool showWelcomeScreen(SDL_Renderer* renderer, SDL_Window* window, string* playe
 
     return startGame;
 }
-
