@@ -149,8 +149,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Mix_Chunk* one_lives_sound = Mix_LoadWAV("../songs/1lives_sound.wav");
-    Mix_Chunk* two_lives_sound = Mix_LoadWAV("../songs/2lives_sound.wav");
+    Mix_Chunk*  two_lives_sound = Mix_LoadWAV("../songs/1lives_sound.wav");
+    Mix_Chunk* one_lives_sound = Mix_LoadWAV("../songs/2lives_sound.wav");
     Mix_Chunk* gameOverSound = Mix_LoadWAV("../songs/death_sound.wav");
 
     if (!one_lives_sound || !two_lives_sound || !gameOverSound) {
@@ -161,6 +161,7 @@ int main(int argc, char* argv[]) {
     //Stocker les plantes
 
     std::vector<std::unique_ptr<Plantes>> plantes;
+    Uint32 collisionPlanteTime = 0;
 
 
     //Stocker les coins 
@@ -189,7 +190,6 @@ int main(int argc, char* argv[]) {
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
-    Plantes maPlante(renderer, 100, 750);
 
     bool isPaused = false;
     bool isLoose = false;
@@ -397,8 +397,7 @@ int main(int argc, char* argv[]) {
                             50
                     };
 
-                    drawBoid(renderer, boid, viewport, fishTextures);
-                    SDL_RenderDrawRect(renderer, &boidRect);  // Draw boid hitbox
+                drawBoid(renderer, boid, viewport, fishTextures);
 
                     Uint32 currentTime = SDL_GetTicks();  // Temps actuel
                     if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
@@ -433,7 +432,7 @@ int main(int argc, char* argv[]) {
             renderText(renderer, counterFont, to_string(currentTimeSeconds), counterColor, 80, 80);
 
 
-            if (currentTime > lastSpawnTime + spawnInterval) {
+        if (currentTime > lastSpawnTime + spawnInterval && plantes.size() < MAX_PLANTES) {
 
                 int x = rand() % 1920;
                 int y = 750;
@@ -446,10 +445,35 @@ int main(int argc, char* argv[]) {
             }
 
 
-            for (const auto& plante : plantes) {
-                plante->draw(renderer, viewport);
-                plante->checkEvolution(renderer);
-            }
+        for (const auto& plante : plantes) {
+            plante->draw(renderer, viewport); 
+            plante->checkEvolution(renderer);
+
+
+            SDL_Rect planteRect = {
+                static_cast<int>(plante->getX() - viewport.x - 25),  
+                static_cast<int>(plante->getY() - viewport.y - 25),
+                50, 
+                50
+            };
+            Uint32 currentTime = SDL_GetTicks();
+            if (checkCollision(diverRect, planteRect) && (currentTime - collisionPlanteTime > 4000)) {
+                collisionPlanteTime = currentTime;   
+                plante->downgrade(renderer);
+                if (diver.getLives() > 0) {
+                    diver.incrementLives(-1);  // Réduire le nombre de vies
+                    // Jouer le son approprié selon la vie restante
+                    if (diver.getLives() == 2) {
+                        Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
+                    } else if (diver.getLives() == 1) {
+                        Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
+                    } else if (diver.getLives() == 0) {
+                        Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
+                        isLoose = true;
+                    }
+                }                
+            } 
+        }
 
             //Gestion coins
 

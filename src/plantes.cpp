@@ -18,6 +18,8 @@ void Plantes::updateTexture(SDL_Renderer* renderer) {
         this->largeur = currentLevel->getLargeur();
         this->hauteur = currentLevel->getHauteur();
     }
+
+
 }
 
 
@@ -34,6 +36,9 @@ void Plantes::draw(SDL_Renderer* renderer, const Viewport& viewport) {
 
     // Dessiner le contour de la plante (rectangle)
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); 
+
+    // Dessiner le contour du rectangle
+
 }
 
 // Méthode pour mettre à jour le niveau en fonction des ressources disponibles
@@ -108,4 +113,13 @@ void Plantes::checkEvolution(SDL_Renderer* renderer) {
             creationTime = SDL_GetTicks();
         }
     }
+}
+
+void Plantes::downgrade(SDL_Renderer* renderer){
+
+    if (getLevel() > 1){
+        updateLevel(renderer, getLevel()-1);
+    }
+
+
 }

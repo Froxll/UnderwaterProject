@@ -23,7 +23,12 @@ public:
     int getCoins() { return this->numberOfCoins; }
     int getLives() { return this->lives; }
     void incrementCoins(int number){ this->numberOfCoins+=number;}
-    void incrementLives(int number){ this->lives+=number;}
+    void incrementLives(int number){ 
+        if(this->lives > 0 && this->lives <= 3){
+            this->lives+=number;
+        }
+
+    }
 };
 
 #endif //UNDERWATERPROJECT_DIVER_HPP
