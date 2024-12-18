@@ -30,7 +30,7 @@ const int FRAME_HEIGHT = 17;
 const int NUM_FRAMES = 5; 
 const int MAX_COINS = 10;   
 
-
+//Lives
 const int MAX_LIVES = 10;   
 
 
@@ -104,7 +104,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "Erreur de chargement des textures des cœurs : " << IMG_GetError() << std::endl;
         return 1;
     }
-    int lives=diver.getLives();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         std::cerr << "Erreur SDL: " << SDL_GetError() << std::endl;
@@ -147,7 +146,7 @@ int main(int argc, char* argv[]) {
     int currentNbLives = 0;
 
     Uint32 lastLiveSpawnTime = SDL_GetTicks();
-    const Uint32 liveSpawnInterval = 3000; 
+    const Uint32 liveSpawnInterval = 10000;
 
 
 
@@ -304,15 +303,15 @@ int main(int argc, char* argv[]) {
                     collisionTime = currentTime;  // Réinitialiser le timer de collision
                     std::cout << "Collision!" << std::endl;
 
-                    if (lives > 0) {
-                        lives--;  // Réduire le nombre de vies
+                    if (diver.getLives() > 0) {
+                        diver.incrementLives(-1);  // Réduire le nombre de vies
 
                         // Jouer le son approprié selon la vie restante
-                        if (lives == 2) {
+                        if (diver.getLives() == 2) {
                             Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
-                        } else if (lives == 1) {
+                        } else if (diver.getLives() == 1) {
                             Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
-                        } else if (lives == 0) {
+                        } else if (diver.getLives() == 0) {
                             Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
                         }
                     }
@@ -392,7 +391,7 @@ int main(int argc, char* argv[]) {
             currentNbLives += 1;
         }
         
-        if(lives < 3){
+        if(diver.getLives() < 3){
             for (auto it = livesV.begin(); it != livesV.end();) {
                 auto& live = *it;
 
@@ -445,7 +444,7 @@ int main(int argc, char* argv[]) {
                     heartHeight                              // Hauteur du cœur
             };
 
-            if (i < lives) {
+            if (i < diver.getLives()) {
                 SDL_RenderCopy(renderer, heartFullTexture, nullptr, &heartRect); // Cœur plein
             } else {
                 SDL_RenderCopy(renderer, heartEmptyTexture, nullptr, &heartRect); // Cœur vide
