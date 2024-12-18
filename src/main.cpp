@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    std:cerr << playerName << std::endl;
+    cerr << playerName << std::endl;
 
     // Initialiser le viewport au centre du monde
 
@@ -158,8 +158,7 @@ int main(int argc, char* argv[]) {
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
 
     bool isPaused = false;
-    bool isGameLaunched = true;
-    bool isWaitingScreenShowed = false;
+    bool isLoose = false;
 
     SDL_Texture* pauseButtonTexture = IMG_LoadTexture(renderer, "../img/assets/Pause.png");
     if (!pauseButtonTexture) {
@@ -172,13 +171,60 @@ int main(int argc, char* argv[]) {
     SDL_Texture* resumeTexture = createTexture(renderer, window, "../img/assets/Start.png");
     SDL_Texture* quitTexture = createTexture(renderer, window, "../img/assets/Stop.png");
     SDL_Texture* newGameTexture = createTexture(renderer, window, "../img/assets/New_Game.png");
-
+    SDL_Texture* gameOverTexture = createTexture(renderer, window, "../img/assets/Game_Over.png");
 
     Uint32 startTime = SDL_GetTicks();
 
     while (running) {
+        if (isLoose) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_Rect overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+            SDL_RenderFillRect(renderer, &overlay);
 
-        if (isPaused) {
+            // GameOver
+            SDL_Rect gameOverButton = {WINDOW_WIDTH / 2 - 250, WINDOW_HEIGHT / 2 - 150,  GAME_OVER_RECT_WIDTH, GAME_OVER_RECT_HEIGHT};
+            SDL_RenderCopy(renderer, gameOverTexture, nullptr, &gameOverButton);
+
+            // Bouton new game
+            SDL_Rect newGameButton = {WINDOW_WIDTH / 2 - 160, WINDOW_HEIGHT / 2 + 45,  BUTTON_NEWGAME_WIDTH, BUTTON_NEWGAME_HEIGHT};
+            SDL_RenderCopy(renderer, newGameTexture, nullptr, &newGameButton);
+
+            SDL_RenderPresent(renderer);
+
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    int x = event.button.x;
+                    int y = event.button.y;
+
+                    // Click sur le bouton Stop
+                    if (x >= gameOverButton.x && x <= gameOverButton.x + gameOverButton.w &&
+                        y >= gameOverButton.y && y <= gameOverButton.y + gameOverButton.h) {
+                        running = false;
+                        }
+
+                    // Click sur le bouton New Game
+                    if (x >= newGameButton.x && x <= newGameButton.x + newGameButton.w &&
+                        y >= newGameButton.y && y <= newGameButton.y + newGameButton.h) {
+                        running = false;
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_DestroyTexture(mapTexture);
+                        IMG_Quit();
+                        SDL_Quit();
+                        main(0, nullptr);
+                        return 0;
+                        }
+                } else if (event.type == SDL_KEYDOWN) {
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        isPaused = false;
+                    }
+                }
+            }
+        }
+        else if (isPaused) {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_Rect overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
@@ -312,6 +358,8 @@ int main(int argc, char* argv[]) {
                             Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
                         } else if (diver.getLives() == 0) {
                             Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
+
+                            isLoose = true;
                         }
                     }
                 }
