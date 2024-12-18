@@ -128,6 +128,7 @@ int main(int argc, char* argv[]) {
     //Stocker les plantes
 
     std::vector<std::unique_ptr<Plantes>> plantes;
+    Uint32 collisionPlanteTime = 0;
 
 
     //Stocker les coins 
@@ -318,6 +319,7 @@ int main(int argc, char* argv[]) {
         for (Boid& boid : boids) {
             updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT, timeFactor);
         }
+
         SDL_RenderClear(renderer);
         drawBackground(renderer, viewport, mapTexture);
 
@@ -341,10 +343,9 @@ int main(int argc, char* argv[]) {
                 };
 
                 drawBoid(renderer, boid, viewport, fishTextures);
-                SDL_RenderDrawRect(renderer, &boidRect);  // Draw boid hitbox
 
                 Uint32 currentTime = SDL_GetTicks();  // Temps actuel
-                if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
+                if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)){
                     collisionTime = currentTime;  // Réinitialiser le timer de collision
                     std::cout << "Collision!" << std::endl;
 
@@ -386,6 +387,31 @@ int main(int argc, char* argv[]) {
         for (const auto& plante : plantes) {
             plante->draw(renderer, viewport); 
             plante->checkEvolution(renderer);
+
+
+            SDL_Rect planteRect = {
+                static_cast<int>(plante->getX() - viewport.x - 25),  
+                static_cast<int>(plante->getY() - viewport.y - 25),
+                50, 
+                50
+            };
+            Uint32 currentTime = SDL_GetTicks();
+            if (checkCollision(diverRect, planteRect) && (currentTime - collisionPlanteTime > 4000)) {
+                collisionPlanteTime = currentTime;   
+                plante->downgrade(renderer);
+                if (diver.getLives() > 0) {
+                    diver.incrementLives(-1);  // Réduire le nombre de vies
+                    // Jouer le son approprié selon la vie restante
+                    if (diver.getLives() == 2) {
+                        Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
+                    } else if (diver.getLives() == 1) {
+                        Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
+                    } else if (diver.getLives() == 0) {
+                        Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
+                        isLoose = true;
+                    }
+                }                
+            } 
         }
 
         //Gestion coins

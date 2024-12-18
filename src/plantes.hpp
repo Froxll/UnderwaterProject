@@ -38,7 +38,7 @@ private:
             }
             return texture;
         }
-        int getLargeur() const override { return 200; }
+        int getLargeur() const override { return 125; }
         int getHauteur() const override { return 250; }
     };
     class PlantesLevel2 : public PlanteLevel {
@@ -99,5 +99,14 @@ public:
     void setPosition(int x, int y);
     void updateTexture(SDL_Renderer* renderer);
     void checkEvolution(SDL_Renderer* renderer);
+    void downgrade(SDL_Renderer* renderer);
+    int getX(){
+        return posX;
+    }
+
+    int getY(){
+        return posY;
+    }
+
 };
 #endif // PLANTES_H
