@@ -116,8 +116,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Mix_Chunk* one_lives_sound = Mix_LoadWAV("../songs/1lives_sound.wav");
-    Mix_Chunk* two_lives_sound = Mix_LoadWAV("../songs/2lives_sound.wav");
+    Mix_Chunk*  two_lives_sound = Mix_LoadWAV("../songs/1lives_sound.wav");
+    Mix_Chunk* one_lives_sound = Mix_LoadWAV("../songs/2lives_sound.wav");
     Mix_Chunk* gameOverSound = Mix_LoadWAV("../songs/death_sound.wav");
 
     if (!one_lives_sound || !two_lives_sound || !gameOverSound) {
@@ -156,7 +156,6 @@ int main(int argc, char* argv[]) {
     fishTextures[1] = IMG_LoadTexture(renderer, "../img/Poissons/fish2Texture.png");
     fishTextures[2] = IMG_LoadTexture(renderer, "../img/Poissons/fish3Texture.png");
     fishTextures[3] = IMG_LoadTexture(renderer, "../img/Poissons/fish4Texture.png");
-    Plantes maPlante(renderer, 100, 750);
 
     bool isPaused = false;
     bool isGameLaunched = true;
@@ -323,7 +322,7 @@ int main(int argc, char* argv[]) {
 
         Uint32 currentTime = SDL_GetTicks();
 
-        if (currentTime > lastSpawnTime + spawnInterval) {
+        if (currentTime > lastSpawnTime + spawnInterval && plantes.size() < MAX_PLANTES) {
 
             int x = rand() % 1920; 
             int y = 750;

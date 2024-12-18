@@ -76,8 +76,8 @@ private:
             }
         return texture;
         }
-        int getLargeur() const override { return 90; }
-        int getHauteur() const override { return 90; }
+        int getLargeur() const override { return 300; }
+        int getHauteur() const override { return 400; }
     };
     std::unique_ptr<PlanteLevel> currentLevel;
     std::unique_ptr<PlanteLevel> previousLevel;
