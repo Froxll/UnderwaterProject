@@ -28,6 +28,9 @@ const int BUTTON_NEWGAME_HEIGHT = 99;
 const int GAME_OVER_RECT_WIDTH = 524;
 const int GAME_OVER_RECT_HEIGHT = 149;
 
+const int COIN_WIDTH = 28;
+const int COIN_HEIGHT = 32;
+
 using namespace std;
 
 SDL_Texture* createTexture(SDL_Renderer* renderer, SDL_Window* window, const char* filePath);
@@ -35,6 +38,8 @@ SDL_Texture* createTexture(SDL_Renderer* renderer, SDL_Window* window, const cha
 bool showWelcomeScreen(SDL_Renderer* renderer, SDL_Window* window, string* playerName);
 
 bool showPauseScreen(SDL_Renderer* renderer, SDL_Window* window);
+
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y);
 
 
 #endif //WELCOMESCREEN_H

@@ -157,3 +157,13 @@ bool showWelcomeScreen(SDL_Renderer* renderer, SDL_Window* window, string* playe
 
     return startGame;
 }
+
+
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect destRect = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, nullptr, &destRect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}

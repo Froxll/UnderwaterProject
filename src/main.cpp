@@ -59,6 +59,39 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    if (TTF_Init() == -1) {
+        SDL_Log("Erreur : Impossible d'initialiser SDL_ttf : %s", TTF_GetError());
+        return false;
+    }
+
+
+    TTF_Font* marioFont = TTF_OpenFont("../fonts/SuperMario256.ttf", 32);
+    if (!marioFont) {
+        SDL_Log("Erreur : Impossible de charger la police : %s", TTF_GetError());
+        return -1;
+    }
+
+    TTF_Font* counterFont = TTF_OpenFont("../fonts/Super_Shiny.ttf", 32);
+    if (!counterFont) {
+        SDL_Log("Erreur : Impossible de charger la police : %s", TTF_GetError());
+        return -1;
+    }
+
+    TTF_Font* bolehFont = TTF_OpenFont("../fonts/Boleh.ttf", 24);
+    if (!bolehFont) {
+        SDL_Log("Erreur : Impossible de charger la police : %s", TTF_GetError());
+        return -1;
+    }
+
+
+    SDL_Color marioColor = {255, 214, 50, 255}; // Dorée
+
+    SDL_Color counterColor = {255, 25, 25, 255}; // Rouge
+
+    SDL_Color whiteColor = {255, 255, 255, 255}; // Blanc
+
+
+
     cerr << playerName << std::endl;
 
     // Initialiser le viewport au centre du monde
@@ -174,7 +207,11 @@ int main(int argc, char* argv[]) {
     SDL_Texture* newGameTexture = createTexture(renderer, window, "../img/assets/New_Game.png");
     SDL_Texture* gameOverTexture = createTexture(renderer, window, "../img/assets/Game_Over.png");
 
+    SDL_Texture* coinTexture = createTexture(renderer, window, "../img/Coins/Coin.png");
+
     Uint32 startTime = SDL_GetTicks();
+
+
 
     while (running) {
         if (isLoose) {
@@ -190,6 +227,12 @@ int main(int argc, char* argv[]) {
             // Bouton new game
             SDL_Rect newGameButton = {WINDOW_WIDTH / 2 - 160, WINDOW_HEIGHT / 2 + 45,  BUTTON_NEWGAME_WIDTH, BUTTON_NEWGAME_HEIGHT};
             SDL_RenderCopy(renderer, newGameTexture, nullptr, &newGameButton);
+
+            renderText(renderer, marioFont, "Timer : ", whiteColor, WINDOW_WIDTH / 2 - 90, 50);
+            renderText(renderer, counterFont, to_string((SDL_GetTicks() - startTime)/1000), counterColor, WINDOW_WIDTH / 2 + 80, 50);
+
+            renderText(renderer, marioFont, "Gold : ", whiteColor, WINDOW_WIDTH / 2 - 70, 100);
+            renderText(renderer, marioFont, to_string(diver.getCoins()), marioColor, WINDOW_WIDTH / 2 + 80, 100);
 
             SDL_RenderPresent(renderer);
 
@@ -213,6 +256,12 @@ int main(int argc, char* argv[]) {
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_DestroyTexture(mapTexture);
+                        SDL_DestroyTexture(heartFullTexture);
+                        SDL_DestroyTexture(heartEmptyTexture);
+                        Mix_FreeChunk(one_lives_sound);
+                        Mix_FreeChunk(two_lives_sound);
+                        Mix_FreeChunk(gameOverSound);
+                        Mix_CloseAudio();
                         IMG_Quit();
                         SDL_Quit();
                         main(0, nullptr);
@@ -226,6 +275,7 @@ int main(int argc, char* argv[]) {
             }
         }
         else if (isPaused) {
+
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_Rect overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
@@ -271,6 +321,12 @@ int main(int argc, char* argv[]) {
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_DestroyTexture(mapTexture);
+                        SDL_DestroyTexture(heartFullTexture);
+                        SDL_DestroyTexture(heartEmptyTexture);
+                        Mix_FreeChunk(one_lives_sound);
+                        Mix_FreeChunk(two_lives_sound);
+                        Mix_FreeChunk(gameOverSound);
+                        Mix_CloseAudio();
                         IMG_Quit();
                         SDL_Quit();
                         main(0, nullptr);
@@ -310,194 +366,205 @@ int main(int argc, char* argv[]) {
             if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
             if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
 
-        viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
-        viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
+            viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
+            viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
 
-        Uint32 elapsedTime = SDL_GetTicks() - startTime;
-        float timeFactor = 0.3f + elapsedTime / 50000.0f;
+            Uint32 elapsedTime = SDL_GetTicks() - startTime;
+            float timeFactor = 0.3f + elapsedTime / 50000.0f;
 
-        for (Boid& boid : boids) {
-            updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT, timeFactor);
-        }
-        SDL_RenderClear(renderer);
-        drawBackground(renderer, viewport, mapTexture);
+            for (Boid& boid : boids) {
+                updateBoid(boid, boids, MAP_WIDTH, MAP_HEIGHT, timeFactor);
+            }
+            SDL_RenderClear(renderer);
+            drawBackground(renderer, viewport, mapTexture);
 
-        SDL_Rect diverRect = {
-                static_cast<int>(diver.getPosX() - 50),  
-                static_cast<int>(diver.getPosY() - 50),  
-                100,  // width
-                100   // height
-        };
+            SDL_Rect diverRect = {
+                    static_cast<int>(diver.getPosX() - 50),
+                    static_cast<int>(diver.getPosY() - 50),
+                    100,  // width
+                    100   // height
+            };
 
-        for (const Boid& boid : boids) {
-            if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
-                boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
+            for (const Boid& boid : boids) {
+                if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
+                    boid.y >= viewport.y && boid.y < viewport.y + VIEWPORT_HEIGHT) {
 
 
-                SDL_Rect boidRect = {
-                        static_cast<int>(boid.x - viewport.x - 25),  
-                        static_cast<int>(boid.y - viewport.y - 25),
-                        50, 
-                        50
-                };
+                    SDL_Rect boidRect = {
+                            static_cast<int>(boid.x - viewport.x - 25),
+                            static_cast<int>(boid.y - viewport.y - 25),
+                            50,
+                            50
+                    };
 
-                drawBoid(renderer, boid, viewport, fishTextures);
-                SDL_RenderDrawRect(renderer, &boidRect);  // Draw boid hitbox
+                    drawBoid(renderer, boid, viewport, fishTextures);
+                    SDL_RenderDrawRect(renderer, &boidRect);  // Draw boid hitbox
 
-                Uint32 currentTime = SDL_GetTicks();  // Temps actuel
-                if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
-                    collisionTime = currentTime;  // Réinitialiser le timer de collision
-                    std::cout << "Collision!" << std::endl;
+                    Uint32 currentTime = SDL_GetTicks();  // Temps actuel
+                    if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
+                        collisionTime = currentTime;  // Réinitialiser le timer de collision
+                        std::cout << "Collision!" << std::endl;
 
-                    if (diver.getLives() > 0) {
-                        diver.incrementLives(-1);  // Réduire le nombre de vies
+                        if (diver.getLives() > 0) {
+                            diver.incrementLives(-1);  // Réduire le nombre de vies
 
-                        // Jouer le son approprié selon la vie restante
-                        if (diver.getLives() == 2) {
-                            Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
-                        } else if (diver.getLives() == 1) {
-                            Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
-                        } else if (diver.getLives() == 0) {
-                            Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
+                            // Jouer le son approprié selon la vie restante
+                            if (diver.getLives() == 2) {
+                                Mix_PlayChannel(-1, one_lives_sound, 0);  // Perte de la première vie
+                            } else if (diver.getLives() == 1) {
+                                Mix_PlayChannel(-1, two_lives_sound, 0);  // Perte de la deuxième vie
+                            } else if (diver.getLives() == 0) {
+                                Mix_PlayChannel(-1, gameOverSound, 0);   // Game over
 
-                            isLoose = true;
+
+                                isLoose = true;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        //Apparition des plantes 
+            //Apparition des plantes
 
-        Uint32 currentTime = SDL_GetTicks();
+            Uint32 currentTime = SDL_GetTicks();
 
-        if (currentTime > lastSpawnTime + spawnInterval) {
+            Uint8 currentTimeSeconds = (currentTime - startTime) / 1000;
 
-            int x = rand() % 1920; 
-            int y = 750;
-            plantes.push_back(std::make_unique<Plantes>(renderer, x, y));
-            
-            lastSpawnTime = currentTime;
+            renderText(renderer, counterFont, to_string(currentTimeSeconds), counterColor, 80, 80);
 
 
-            spawnInterval = 15000 + rand() % 10000;
-        }
+            if (currentTime > lastSpawnTime + spawnInterval) {
+
+                int x = rand() % 1920;
+                int y = 750;
+                plantes.push_back(std::make_unique<Plantes>(renderer, x, y));
+
+                lastSpawnTime = currentTime;
 
 
-        for (const auto& plante : plantes) {
-            plante->draw(renderer, viewport); 
-            plante->checkEvolution(renderer);
-        }
-
-        //Gestion coins
-
-        int currentFrame = 0;
-        Uint32 frameTime = 100;  
-        Uint32 lastFrameTime = 0;
-
-
-        if (currentTime > lastCoinSpawnTime + coinSpawnInterval && currentNbCoins <= MAX_COINS) {
-            int x = rand() % MAP_WIDTH;  
-            int y = rand() % MAP_HEIGHT; 
-            coins.push_back(std::make_unique<Coins>(renderer, x, y));
-            lastCoinSpawnTime = currentTime;
-            currentNbCoins += 1;
-        }
-        
-        for (auto it = coins.begin(); it != coins.end();) {
-            auto& coin = *it;
-
-            if (coin->getX() >= viewport.x && coin->getX() < viewport.x + VIEWPORT_WIDTH &&
-                coin->getY() >= viewport.y && coin->getY() < viewport.y + VIEWPORT_HEIGHT) {
-                int currentFrame = (currentTime / 100) % NUM_FRAMES; 
-                coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
+                spawnInterval = 15000 + rand() % 10000;
             }
 
-            SDL_Rect coinRect = {
-                static_cast<int>(coin->getX() - viewport.x - 25),  
-                static_cast<int>(coin->getY() - viewport.y - 25),
-                50, 
-                50
-            };
 
-            if (checkCollision(diverRect, coinRect)) {
-                diver.incrementCoins(1); 
-                it = coins.erase(it);    
-                SDL_Log("Pièce collectée ! Total : %d", diver.getCoins());
-            } else {
-                ++it; 
+            for (const auto& plante : plantes) {
+                plante->draw(renderer, viewport);
+                plante->checkEvolution(renderer);
             }
-        }
 
-        //Gestion lives
+            //Gestion coins
 
-        if (currentTime > lastLiveSpawnTime + liveSpawnInterval && currentNbLives <= MAX_LIVES) {
-            int x = rand() % MAP_WIDTH;  
-            int y = rand() % MAP_HEIGHT; 
-            livesV.push_back(std::make_unique<Lives>(renderer, x, y));
-            lastLiveSpawnTime = currentTime;
-            currentNbLives += 1;
-        }
-        
-        if(diver.getLives() < 3){
-            for (auto it = livesV.begin(); it != livesV.end();) {
-                auto& live = *it;
+            int currentFrame = 0;
+            Uint32 frameTime = 100;
+            Uint32 lastFrameTime = 0;
 
-                if (live->getX() >= viewport.x && live->getX() < viewport.x + VIEWPORT_WIDTH &&
-                    live->getY() >= viewport.y && live->getY() < viewport.y + VIEWPORT_HEIGHT) {
-                    live->draw(renderer, viewport);
+
+            if (currentTime > lastCoinSpawnTime + coinSpawnInterval && currentNbCoins <= MAX_COINS) {
+                int x = rand() % MAP_WIDTH;
+                int y = rand() % MAP_HEIGHT;
+                coins.push_back(std::make_unique<Coins>(renderer, x, y));
+                lastCoinSpawnTime = currentTime;
+                currentNbCoins += 1;
+            }
+
+            for (auto it = coins.begin(); it != coins.end();) {
+                auto& coin = *it;
+
+                if (coin->getX() >= viewport.x && coin->getX() < viewport.x + VIEWPORT_WIDTH &&
+                    coin->getY() >= viewport.y && coin->getY() < viewport.y + VIEWPORT_HEIGHT) {
+                    int currentFrame = (currentTime / 100) % NUM_FRAMES;
+                    coin->draw(renderer, viewport, FRAME_WIDTH, FRAME_HEIGHT, currentFrame);
                 }
 
-                SDL_Rect liveRect = {
-                    static_cast<int>(live->getX() - viewport.x - 25),  
-                    static_cast<int>(live->getY() - viewport.y - 25),
-                    50, 
+                SDL_Rect coinRect = {
+                    static_cast<int>(coin->getX() - viewport.x - 25),
+                    static_cast<int>(coin->getY() - viewport.y - 25),
+                    50,
                     50
                 };
 
-                if (checkCollision(diverRect, liveRect)) {
-                    diver.incrementLives(1); 
-                    it = livesV.erase(it);    
-                    SDL_Log("Vie collectée ! Total : %d", diver.getLives());
+                if (checkCollision(diverRect, coinRect)) {
+                    diver.incrementCoins(1);
+                    it = coins.erase(it);
+                    SDL_Log("Pièce collectée ! Total : %d", diver.getCoins());
                 } else {
-                    ++it; 
+                    ++it;
                 }
             }
-        }
 
+            SDL_Rect coinRect = {WINDOW_WIDTH - 50, 100,  COIN_WIDTH, COIN_HEIGHT};
+            SDL_RenderCopy(renderer, coinTexture, nullptr, &coinRect);
 
+            renderText(renderer, marioFont, std::to_string(diver.getCoins()), marioColor, WINDOW_WIDTH - 80, 103);
 
+            //Gestion lives
 
-
-
-
-        //Gestion diver
-        int mapWidth, mapHeight;
-        SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
-
-        diver.updateAngle(keyState);
-        diver.draw(renderer, viewport);
-
-        int heartWidth = 50;  // Largeur d'un cœur (ajustez selon votre image)
-        int heartHeight = 50; // Hauteur d'un cœur
-        int heartSpacing = 10; // Espacement entre les cœurs
-        int startX = 10; // Position de départ en X (en haut à gauche)
-        int startY = 10; // Position de départ en Y (en haut à gauche)
-
-        for (int i = 0; i < 3; i++) {
-            SDL_Rect heartRect = {
-                    startX + i * (heartWidth + heartSpacing), // Position X avec espacement
-                    startY,                                  // Position Y fixe
-                    heartWidth,                              // Largeur du cœur
-                    heartHeight                              // Hauteur du cœur
-            };
-
-            if (i < diver.getLives()) {
-                SDL_RenderCopy(renderer, heartFullTexture, nullptr, &heartRect); // Cœur plein
-            } else {
-                SDL_RenderCopy(renderer, heartEmptyTexture, nullptr, &heartRect); // Cœur vide
+            if (currentTime > lastLiveSpawnTime + liveSpawnInterval && currentNbLives <= MAX_LIVES) {
+                int x = rand() % MAP_WIDTH;
+                int y = rand() % MAP_HEIGHT;
+                livesV.push_back(std::make_unique<Lives>(renderer, x, y));
+                lastLiveSpawnTime = currentTime;
+                currentNbLives += 1;
             }
-        }
+
+            if(diver.getLives() < 3){
+                for (auto it = livesV.begin(); it != livesV.end();) {
+                    auto& live = *it;
+
+                    if (live->getX() >= viewport.x && live->getX() < viewport.x + VIEWPORT_WIDTH &&
+                        live->getY() >= viewport.y && live->getY() < viewport.y + VIEWPORT_HEIGHT) {
+                        live->draw(renderer, viewport);
+                    }
+
+                    SDL_Rect liveRect = {
+                        static_cast<int>(live->getX() - viewport.x - 25),
+                        static_cast<int>(live->getY() - viewport.y - 25),
+                        50,
+                        50
+                    };
+
+                    if (checkCollision(diverRect, liveRect)) {
+                        diver.incrementLives(1);
+                        it = livesV.erase(it);
+                        SDL_Log("Vie collectée ! Total : %d", diver.getLives());
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+
+
+
+
+
+
+
+            //Gestion diver
+            int mapWidth, mapHeight;
+            SDL_QueryTexture(mapTexture, nullptr, nullptr, &mapWidth, &mapHeight);
+
+            diver.updateAngle(keyState);
+            diver.draw(renderer, viewport);
+
+            int heartWidth = 50;  // Largeur d'un cœur (ajustez selon votre image)
+            int heartHeight = 50; // Hauteur d'un cœur
+            int heartSpacing = 10; // Espacement entre les cœurs
+            int startX = 10; // Position de départ en X (en haut à gauche)
+            int startY = 10; // Position de départ en Y (en haut à gauche)
+
+            for (int i = 0; i < 3; i++) {
+                SDL_Rect heartRect = {
+                        startX + i * (heartWidth + heartSpacing), // Position X avec espacement
+                        startY,                                  // Position Y fixe
+                        heartWidth,                              // Largeur du cœur
+                        heartHeight                              // Hauteur du cœur
+                };
+
+                if (i < diver.getLives()) {
+                    SDL_RenderCopy(renderer, heartFullTexture, nullptr, &heartRect); // Cœur plein
+                } else {
+                    SDL_RenderCopy(renderer, heartEmptyTexture, nullptr, &heartRect); // Cœur vide
+                }
+            }
 
             SDL_Delay(16);
         }

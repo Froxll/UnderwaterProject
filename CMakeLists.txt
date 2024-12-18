@@ -15,7 +15,7 @@ find_package(SDL2_ttf REQUIRED)
 include_directories(C:/sdl2/include)
 
 
-file(GLOB_RECURSE sourceCode src/*.cpp src/*.h)
+file(GLOB_RECURSE sourceCode src/*.cpp src/*.hpp)
 
 add_executable(UnderwaterProject ${sourceCode})
 
