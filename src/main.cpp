@@ -23,8 +23,7 @@ const int NUM_BOIDS = 20;
 //Plantes
 const int MAX_PLANTES = 5;
 
-//Coins 
-
+//Coins
 const int FRAME_WIDTH = 16;  
 const int FRAME_HEIGHT = 17; 
 const int NUM_FRAMES = 5; 
@@ -116,7 +115,6 @@ int main(int argc, char* argv[]) {
 
     bool running = true;
     SDL_Event event;
-    const float CAMERA_SPEED = 5.0f;
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
@@ -208,6 +206,7 @@ int main(int argc, char* argv[]) {
     SDL_Texture* gameOverTexture = createTexture(renderer, window, "../img/assets/Game_Over.png");
 
     SDL_Texture* coinTexture = createTexture(renderer, window, "../img/Coins/Coin.png");
+    SDL_Rect camera = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
 
     Uint32 startTime = SDL_GetTicks();
 
@@ -293,6 +292,7 @@ int main(int argc, char* argv[]) {
             SDL_Rect newGameButton = {WINDOW_WIDTH / 2 - 160, WINDOW_HEIGHT / 2 + 45,  BUTTON_NEWGAME_WIDTH, BUTTON_NEWGAME_HEIGHT};
             SDL_RenderCopy(renderer, newGameTexture, nullptr, &newGameButton);
 
+
             SDL_RenderPresent(renderer);
 
             while (SDL_PollEvent(&event)) {
@@ -361,10 +361,85 @@ int main(int argc, char* argv[]) {
 
             }
 
-            if (keyState[SDL_SCANCODE_LEFT]) viewport.x -= CAMERA_SPEED;
-            if (keyState[SDL_SCANCODE_RIGHT]) viewport.x += CAMERA_SPEED;
-            if (keyState[SDL_SCANCODE_UP]) viewport.y -= CAMERA_SPEED;
-            if (keyState[SDL_SCANCODE_DOWN]) viewport.y += CAMERA_SPEED;
+            SDL_Rect diverRect = {
+                    static_cast<int>(diver.getPosX() - 50),
+                    static_cast<int>(diver.getPosY() - 50),
+                    100,  // width
+                    100   // height
+            };
+
+            if (keyState[SDL_SCANCODE_LEFT]) {
+                viewport.x -= CAMERA_SPEED;
+                if (diver.getPosX() - CAMERA_SPEED <= 0) {
+                    diver.setPosX(0);
+                }
+                if ((camera.x == 0 && diver.getPosX() - CAMERA_SPEED > 0) ||
+                    (camera.x == MAP_WIDTH - WINDOW_WIDTH && diver.getPosX() > WINDOW_WIDTH / 2)) {
+                    diver.setPosX(diver.getPosX() - CAMERA_SPEED);
+                }
+                else if (camera.x - CAMERA_SPEED > 0) {
+                    camera.x -= CAMERA_SPEED;
+                }
+                else {
+                    camera.x = 0;
+                }
+            }
+
+            if (keyState[SDL_SCANCODE_RIGHT]) {
+                viewport.x += CAMERA_SPEED;
+                if (diver.getPosX() + CAMERA_SPEED >= WINDOW_WIDTH - diverRect.w) {
+                    diver.setPosX(WINDOW_WIDTH - diverRect.w);
+                }
+                if ((camera.x == 0 && diver.getPosX() + CAMERA_SPEED < WINDOW_WIDTH) ||
+                    (camera.x >= MAP_WIDTH - WINDOW_WIDTH && diver.getPosX() + CAMERA_SPEED < WINDOW_WIDTH - diverRect.w)) {
+                    diver.setPosX(diver.getPosX() + CAMERA_SPEED);
+                }
+                else if (camera.x + CAMERA_SPEED < MAP_WIDTH - WINDOW_WIDTH) {
+                    camera.x += CAMERA_SPEED;
+                }
+                else {
+                    camera.x = MAP_WIDTH - WINDOW_WIDTH;
+                }
+            }
+
+            if (keyState[SDL_SCANCODE_UP]){
+                viewport.y -= CAMERA_SPEED;
+                if(diver.getPosY() - CAMERA_SPEED <= 0){
+                    diver.setPosY(0);
+                }
+                if((camera.y == 0 && diver.getPosY() - CAMERA_SPEED > 0) || (camera.y == MAP_HEIGHT - CAMERA_HEIGHT && diver.getPosY() > WINDOW_HEIGHT/2)){
+                    diver.setPosY(diver.getPosY() - CAMERA_SPEED);
+                }
+                else if(camera.y - CAMERA_SPEED > 0){
+                    camera.y -= CAMERA_SPEED;
+                    diver.setPosY(WINDOW_HEIGHT/2);
+                }
+                else{
+                    camera.y = 0;
+                }
+            }
+
+            if (keyState[SDL_SCANCODE_DOWN]) {
+                viewport.y += CAMERA_SPEED;
+                if (diver.getPosY() + CAMERA_SPEED >= WINDOW_HEIGHT - diverRect.h) {
+                    diver.setPosY(WINDOW_HEIGHT - diverRect.h);
+                }
+                else if (camera.y == 0 && diver.getPosY() + CAMERA_SPEED < WINDOW_HEIGHT) {
+                    diver.setPosY(diver.getPosY() + CAMERA_SPEED);
+                }
+                else if (camera.y >= MAP_HEIGHT - WINDOW_HEIGHT) {
+                    if (diver.getPosY() + CAMERA_SPEED < WINDOW_HEIGHT - diverRect.h) {
+                        diver.setPosY(diver.getPosY() + CAMERA_SPEED);
+                    }
+                }
+                else if (camera.y + CAMERA_SPEED < MAP_HEIGHT - WINDOW_HEIGHT) {
+                    camera.y += CAMERA_SPEED;
+                    diver.setPosY(WINDOW_HEIGHT / 2);
+                }
+                else {
+                    diver.setPosY(diver.getPosY() + CAMERA_SPEED);
+                }
+            }
 
             viewport.x = std::max(0.0f, std::min(viewport.x, float(MAP_WIDTH - VIEWPORT_WIDTH)));
             viewport.y = std::max(0.0f, std::min(viewport.y, float(MAP_HEIGHT - VIEWPORT_HEIGHT)));
@@ -399,10 +474,10 @@ int main(int argc, char* argv[]) {
 
                 drawBoid(renderer, boid, viewport, fishTextures);
 
-                    Uint32 currentTime = SDL_GetTicks();  // Temps actuel
-                    if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 1000)) {
-                        collisionTime = currentTime;  // Réinitialiser le timer de collision
-                        std::cout << "Collision!" << std::endl;
+                Uint32 currentTime = SDL_GetTicks();  // Temps actuel
+                if (checkCollision(diverRect, boidRect) && (currentTime - collisionTime > 3000)) {
+                    collisionTime = currentTime;  // Réinitialiser le timer de collision
+                    std::cout << "Collision!" << std::endl;
 
                         if (diver.getLives() > 0) {
                             diver.incrementLives(-1);  // Réduire le nombre de vies

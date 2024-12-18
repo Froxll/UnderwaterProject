@@ -20,6 +20,14 @@ Diver::~Diver() {
     }
 }
 
+void Diver::setPosX(int newPosX){
+    this->posX = newPosX;
+}
+
+void Diver::setPosY(int newPosY){
+    this->posY = newPosY;
+}
+
 void Diver::draw(SDL_Renderer* renderer, const Viewport& viewport) {
     SDL_Rect dstRect = {
             posX - 50,  // Centrer l'image

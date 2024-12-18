@@ -20,6 +20,8 @@ public:
     float getAngle() const { return angle; }
     int getPosX() const { return posX; }
     int getPosY() const { return posY; }
+    void setPosX(int newPosX);
+    void setPosY(int newPosY);
     int getCoins() { return this->numberOfCoins; }
     int getLives() { return this->lives; }
     void incrementCoins(int number){ this->numberOfCoins+=number;}
