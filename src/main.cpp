@@ -453,12 +453,6 @@ int main(int argc, char* argv[]) {
             SDL_RenderClear(renderer);
             drawBackground(renderer, viewport, mapTexture);
 
-            SDL_Rect diverRect = {
-                    static_cast<int>(diver.getPosX() - 50),
-                    static_cast<int>(diver.getPosY() - 50),
-                    100,  // width
-                    100   // height
-            };
 
             for (const Boid& boid : boids) {
                 if (boid.x >= viewport.x && boid.x < viewport.x + VIEWPORT_WIDTH &&
